@@ -8,7 +8,7 @@
     + GitLab: <https://gitlab.com/protesilaos/dired-preview>
 + Mailing list: <https://lists.sr.ht/~protesilaos/general-issues>
 + Backronym: Directories Invariably Render Everything Decently; PDFs
-  Require Extra Viewing Impediments for Emacs to Work.
+  Require Extra Viewing Instructions for Emacs to Work.
 
 * * *
 
