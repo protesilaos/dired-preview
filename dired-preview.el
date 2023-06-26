@@ -253,16 +253,22 @@ Return buffer object of displayed buffer."
         (dired-preview--display-buffer-with-delay buffer)
     (dired-preview--close-previews)))
 
+(defun dired-preview--display-file-after-mark (&rest args)
+  "Preview file at point in dired buffer after a mark was changed."
+  (dired-preview--display-file))
+
 (defun dired-preview-disable-preview ()
   "Disable preview."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
+  (advice-remove #'dired-mark #'dired-preview--display-file-after-mark)
   (dired-preview--close-previews))
 
 (defun dired-preview-enable-preview ()
   "Enable preview and store window configuration."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
+  (advice-add #'dired-mark :after #'dired-preview--display-file-after-mark)
   (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
   (dired-preview--display-file))
 
