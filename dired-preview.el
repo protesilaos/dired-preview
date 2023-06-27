@@ -152,7 +152,8 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
-  (and (not (file-directory-p file))
+  (and (file-exists-p file)
+       (not (file-directory-p file))
        (not (dired-preview--file-ignored-p file))
        (not (dired-preview--file-large-p file))))
 
