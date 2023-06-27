@@ -30,29 +30,29 @@
 ;; file at point in Dired buffers.  Preview windows are closed when they
 ;; are no longer relevant, while preview buffers are killed if they have
 ;; not been used for other purposes beside previewing.
-;; 
+;;
 ;; Enable the `dired-preview-mode' in the current Dired buffer and
 ;; then perform the regular up/down motions.  Those will trigger the
 ;; preview.
-;; 
+;;
 ;; The previewed file is displayed in a side window if its size is below
 ;; the number specified in the user option `dired-preview-max-size'.
 ;; Previews are shown subject to a small delay, per ther user option
 ;; `dired-preview-delay'.
-;; 
+;;
 ;; Files matching the `dired-preview-ignored-extensions-regexp' are not
 ;; previewed.  The default value of that user option includes multimedia,
 ;; PDFs, and EPUBs.
-;; 
+;;
 ;; [ In the future, we may find ways to quickly preview any file type
 ;;   without affecting the performance of Emacs.  Though `dired-preview'
 ;;   is designed to have no external dependencies, so such an ambition
 ;;   may not be realisable (e.g. produce a thumbnail out of a video).  ]
-;; 
+;;
 ;; To set up `dired-preview-mode' in every Dired buffer, set it up thus:
-;; 
+;;
 ;;     (add-hook 'dired-mode-hook #'dired-preview-mode)
-;; 
+;;
 ;; I took inspiration for `dired-preview' from the now unmaintained
 ;; `peep-dired' package by Adam Sokolnicki: <https://github.com/asok/peep-dired>.
 ;; My original plan was to volunteer to maintain `peep-dired` but I
