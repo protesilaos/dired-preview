@@ -140,6 +140,16 @@ Always return FILE buffer."
        window))
    (window-list)))
 
+(defun dired-preview--file-ignored-p (file)
+  "Return non-nil if FILE extension is among the ignored extensions.
+See user option `dired-preview-ignored-extensions-regexp'."
+  (when-let ((ext (file-name-extension file)))
+    (string-match-p ext dired-preview-ignored-extensions-regexp)))
+
+(defun dired-preview--file-large-p (file)
+  "Return non-nil if FILE exceeds `dired-preview-max-size'."
+  (> (file-attribute-size (file-attributes file)) dired-preview-max-size))
+
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
   (and (not (file-directory-p file))
@@ -152,16 +162,6 @@ Determine the propriety of this action by checking that FILE
 conforms with `dired-preview--preview-p'."
   (when (dired-preview--preview-p file)
     (dired-preview--add-to-previews file)))
-
-(defun dired-preview--file-ignored-p (file)
-  "Return non-nil if FILE extension is among the ignored extensions.
-See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let ((ext (file-name-extension file)))
-    (string-match-p ext dired-preview-ignored-extensions-regexp)))
-
-(defun dired-preview--file-large-p (file)
-  "Return non-nil if FILE exceeds `dired-preview-max-size'."
-  (> (file-attribute-size (file-attributes file)) dired-preview-max-size))
 
 (defun dired-preview--delete-windows ()
   "Delete preview windows."
