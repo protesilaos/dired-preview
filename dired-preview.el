@@ -242,62 +242,38 @@ Only do it with the current major mode is Dired."
         (run-with-timer dired-preview-delay nil
                         #'dired-preview--display-buffer-action buffer)))
 
-(defun dired-preview--display-file (&optional file)
-  "Display preview of file if appropriate.
+(defun dired-preview-display-file (&rest _)
+  "Display preview of `dired-file-name-at-point' if appropriate.
+Return buffer object of displayed buffer.  Ignore any arguments.
 
-File is either FILE or the value of `dired-file-name-at-point'.
-
-Return buffer object of displayed buffer."
-  (if-let* ((f (or file (dired-file-name-at-point)))
-            (buffer (dired-preview--return-preview-buffer f)))
+Use this as advice after relevant Dired commands (see
+`dired-preview-enable-preview', `dired-preview-disable-preview')."
+  (if-let* ((file (dired-file-name-at-point))
+            (buffer (dired-preview--return-preview-buffer file)))
         (dired-preview--display-buffer-with-delay buffer)
     (dired-preview--close-previews)))
-
-(defun dired-preview--display-file-after-mark (&rest args)
-  "Preview file at point in dired buffer after a mark was changed."
-  (dired-preview--display-file))
 
 (defun dired-preview-disable-preview ()
   "Disable preview."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
-  (advice-remove #'dired-mark #'dired-preview--display-file-after-mark)
+  (dolist (command '(dired-next-line dired-previous-line dired-mark dired-goto-file))
+    (advice-remove command #'dired-preview-display-file))
   (dired-preview--close-previews))
 
 (defun dired-preview-enable-preview ()
   "Enable preview and store window configuration."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
-  (advice-add #'dired-mark :after #'dired-preview--display-file-after-mark)
+  (dolist (command '(dired-next-line dired-previous-line dired-mark dired-goto-file))
+    (advice-add command :after #'dired-preview-display-file))
   (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
-  (dired-preview--display-file))
-
-(defun dired-preview-next-file (number)
-  "Preview next file in Dired.
-With optional numeric argument NUMBER move than many lines.  Default is 1."
-  (interactive "^p")
-  (dired-next-line (or number 1))
-  (dired-preview--display-file))
-
-(defun dired-preview-previous-file (number)
-  "Preview previous file in Dired.
-With optional numeric argument NUMBER move than many lines.  Default is 1."
-  (interactive "^p")
-  (dired-next-line (- (or number 1)))
-  (dired-preview--display-file))
-
-(defvar dired-preview-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap dired-next-line] #'dired-preview-next-file)
-    (define-key map [remap dired-previous-line] #'dired-preview-previous-file)
-    map)
-  "Keymap for `dired-preview-mode'.")
+  (dired-preview-display-file))
 
 ;;;###autoload
 (define-minor-mode dired-preview-mode
   "Buffer-local mode to preview file at point in Dired."
   :global nil
-  :keymap dired-preview-mode-map
   (if dired-preview-mode
       (dired-preview-enable-preview)
     (dired-preview-disable-preview)))
