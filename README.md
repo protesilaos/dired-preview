@@ -18,9 +18,7 @@ are no longer relevant, while preview buffers are killed if they have
 not been used for other purposes beside previewing.
 
 Enable the `dired-preview-mode` in the current Dired buffer and then
-perform the regular up/down motions (`n` or `p` with default key
-bindings) to call the commands `dired-preview-next-file`,
-`dired-preview-previous-file`.  Those will trigger the preview.
+perform the regular up/down motions.  Those will trigger the preview.
 
 The previewed file is displayed in a side window if its size is below
 the number specified in the user option `dired-preview-max-size`.
