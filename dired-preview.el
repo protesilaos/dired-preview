@@ -150,10 +150,17 @@ See user option `dired-preview-ignored-extensions-regexp'."
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
   (> (file-attribute-size (file-attributes file)) dired-preview-max-size))
 
+(defun dired-preview--file-displayed-p (file)
+  "Return non-nil if FILE is already displayed in a window."
+  (when-let* ((buffer (get-file-buffer file))
+              (window (get-buffer-window buffer)))
+    (window-live-p window)))
+
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
   (and (file-exists-p file)
        (not (file-directory-p file))
+       (not (dired-preview--file-displayed-p file))
        (not (dired-preview--file-ignored-p file))
        (not (dired-preview--file-large-p file))))
 
