@@ -187,7 +187,8 @@ conforms with `dired-preview--preview-p'."
                 delayed-mode-hooks)
        (ignore-errors
          (kill-buffer-if-not-modified buffer))))
-   (dired-preview--get-buffers)))
+   (dired-preview--get-buffers))
+  (setq dired-preview--buffers nil))
 
 (defvar dired-preview--timer nil
   "Most recent timer object to display a preview.")
