@@ -263,37 +263,38 @@ Only do it with the current major mode is Dired."
         (run-with-timer dired-preview-delay nil
                         #'dired-preview--display-buffer buffer)))
 
-(defun dired-preview-display-file (&rest _)
+(defun dired-preview-display-file ()
   "Display preview of `dired-file-name-at-point' if appropriate.
-Return buffer object of displayed buffer.  Ignore any arguments.
-
-Use this as advice after relevant Dired commands (see
-`dired-preview-enable-preview', `dired-preview-disable-preview')."
+Return buffer object of displayed buffer."
   (if-let* ((file (dired-file-name-at-point))
             (buffer (dired-preview--return-preview-buffer file)))
         (dired-preview--display-buffer-with-delay buffer)
     (dired-preview--close-previews)))
 
+(defvar dired-preview-trigger-commands
+  '(dired-next-line dired-previous-line dired-mark dired-goto-file)
+  "List of Dired commands that trigger a preview.")
+
+(defun dired-preview-trigger ()
+  "Trigger display of file at point after `dired-preview-trigger-commands'."
+  (when (memq last-command dired-preview-trigger-commands)
+    (dired-preview-display-file)))
+
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
-  (dolist (command '(dired-next-line dired-previous-line dired-mark dired-goto-file))
-    (advice-remove command #'dired-preview-display-file))
+  (remove-hook 'post-command-hook #'dired-preview-trigger :local)
   (dired-preview--close-previews))
 
 (defun dired-preview-enable-preview ()
   "Enable Dired preview."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
-  (dolist (command '(dired-next-line dired-previous-line dired-mark dired-goto-file))
-    (advice-add command :after #'dired-preview-display-file))
+  (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
   (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
   (dired-preview-display-file))
 
-;; FIXME 2023-06-28: The :global nil and the `advice-add' contradict
-;; each other.  I still prefer a buffer-local mode and must thus
-;; arrange for the same job via the `post-command-hook'.
 ;;;###autoload
 (define-minor-mode dired-preview-mode
   "Buffer-local mode to preview file at point in Dired."
