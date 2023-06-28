@@ -291,6 +291,9 @@ Use this as advice after relevant Dired commands (see
   (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
   (dired-preview-display-file))
 
+;; FIXME 2023-06-28: The :global nil and the `advice-add' contradict
+;; each other.  I still prefer a buffer-local mode and must thus
+;; arrange for the same job via the `post-command-hook'.
 ;;;###autoload
 (define-minor-mode dired-preview-mode
   "Buffer-local mode to preview file at point in Dired."
