@@ -82,6 +82,34 @@
   :group 'dired-preview
   :type 'integer)
 
+(defcustom dired-preview-buffer-name "*dired-preview*"
+  "Name of preview buffer.
+Used by the default value of `dired-preview-display-action-alist'."
+  :group 'dired-preview
+  :type 'string)
+
+(defcustom dired-preview-display-action-alist
+  `((display-buffer-in-side-window)
+    (side . right)
+    (slot . -1)
+    (window-width . 0.3)
+    (dedicated . t)
+    (body-function . dired-preview-set-up-preview-window)
+    (window-parameters . ((no-other-window . t)
+                          (mode-line-format . ("%e"
+                                               mode-line-front-space
+                                               ,dired-preview-buffer-name)))))
+  "The `display-buffer' action for the preview.
+This is the same data that is passed to `display-buffer-alist'.
+Read Info node `(elisp) Displaying Buffers'.  As such, it is
+meant for experienced users.
+
+To ensure best results, the `body-function' in the alist must be
+set to `dired-preview-set-up-preview-window', as shown in this
+user option's default value."
+  :group 'dired-preview
+  :type 'alist)
+
 (defcustom dired-preview-delay 0.7
   "Time in seconds to wait before previewing."
   :group 'dired-preview
@@ -106,7 +134,7 @@
 (defun dired-preview--run-mode-hooks ()
   "Run mode hooks in current buffer, if `delayed-mode-hooks' is non-nil.
 See `dired-preview--find-file-no-select' for how hooks are
-delayed and `dired-preview--set-up-preview-window' for how this function
+delayed and `dired-preview-set-up-preview-window' for how this function
 is used."
   (when (and delay-mode-hooks (current-buffer))
     (run-mode-hooks delayed-mode-hooks)
@@ -203,19 +231,12 @@ conforms with `dired-preview--preview-p'."
   (when (not (eq major-mode 'dired-mode))
     (dired-preview--close-previews)))
 
-(defun dired-preview--set-up-preview-window (window &rest _)
+(defun dired-preview-set-up-preview-window (window &rest _)
   "Set WINDOW `:preview' parameter."
   (set-window-parameter window 'dired-preview-window :preview)
   (with-current-buffer (window-buffer window)
     (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
     (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local)))
-
-(defvar dired-preview-buffer-name "*dired-preview*"
-  "Name of preview buffer.")
-
-;; TODO 2023-06-13: Determine best way to make the placement of the
-;; preview configurable.
-(defvar dired-preview-display-buffer-side 'right)
 
 (defun dired-preview--display-buffer-action (buffer)
   "Call `display-buffer' for BUFFER.
@@ -226,17 +247,7 @@ Only do it with the current major mode is Dired."
   (when (eq major-mode 'dired-mode)
     (display-buffer
      buffer
-     ;; NOTE 2023-06-13: See TODO above.
-     `((display-buffer-in-side-window)
-       (side . ,dired-preview-display-buffer-side)
-       (slot . -1)
-       (window-width . 0.3)
-       (dedicated . t)
-       (body-function . dired-preview--set-up-preview-window)
-       (window-parameters . ((no-other-window . t)
-                             (mode-line-format . ("%e"
-                                                  mode-line-front-space
-                                                  ,dired-preview-buffer-name))))))))
+     dired-preview-display-action-alist)))
 
 (defun dired-preview--cancel-timer ()
   "Cancel `dired-preview--timer' if it is a timer object."
