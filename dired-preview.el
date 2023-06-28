@@ -240,7 +240,7 @@ Use this as the `body-function' in the user option
     (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
     (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local)))
 
-(defun dired-preview--display-buffer-action (buffer)
+(defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
 Only do it with the current major mode is Dired."
   ;; We check for `dired-mode' because we want to avoid the scenario
@@ -261,7 +261,7 @@ Only do it with the current major mode is Dired."
   (dired-preview--cancel-timer)
   (setq dired-preview--timer
         (run-with-timer dired-preview-delay nil
-                        #'dired-preview--display-buffer-action buffer)))
+                        #'dired-preview--display-buffer buffer)))
 
 (defun dired-preview-display-file (&rest _)
   "Display preview of `dired-file-name-at-point' if appropriate.
