@@ -275,7 +275,7 @@ Use this as advice after relevant Dired commands (see
     (dired-preview--close-previews)))
 
 (defun dired-preview-disable-preview ()
-  "Disable preview."
+  "Disable Dired preview."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
   (dolist (command '(dired-next-line dired-previous-line dired-mark dired-goto-file))
@@ -283,7 +283,7 @@ Use this as advice after relevant Dired commands (see
   (dired-preview--close-previews))
 
 (defun dired-preview-enable-preview ()
-  "Enable preview and store window configuration."
+  "Enable Dired preview."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
   (dolist (command '(dired-next-line dired-previous-line dired-mark dired-goto-file))
