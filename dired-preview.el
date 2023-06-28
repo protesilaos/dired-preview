@@ -232,7 +232,9 @@ conforms with `dired-preview--preview-p'."
     (dired-preview--close-previews)))
 
 (defun dired-preview-set-up-preview-window (window &rest _)
-  "Set WINDOW `:preview' parameter."
+  "Set WINDOW `:preview' parameter.
+Use this as the `body-function' in the user option
+`dired-preview-display-action-alist'."
   (set-window-parameter window 'dired-preview-window :preview)
   (with-current-buffer (window-buffer window)
     (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
