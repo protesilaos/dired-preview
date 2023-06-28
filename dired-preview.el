@@ -70,9 +70,9 @@
 
 (defcustom dired-preview-ignored-extensions-regexp
   (concat "\\."
-          "\\(mkv\\|" "webm\\|" "mp4\\|" "mp3\\|" "ogg\\|" "m4a\\|"
-          "gz\\|" "zst\\|" "tar\\|" "xz\\|" "rar\\|" "zip\\|"
-          "iso\\|" "epub\\|" "pdf\\)")
+          "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
+          "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
+          "\\|iso\\|epub\\|pdf\\)")
   "Regular expression of file type extensions to not preview."
   :group 'dired-preview
   :type 'string)
