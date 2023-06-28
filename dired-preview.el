@@ -277,7 +277,7 @@ Return buffer object of displayed buffer."
 
 (defun dired-preview-trigger ()
   "Trigger display of file at point after `dired-preview-trigger-commands'."
-  (when (memq last-command dired-preview-trigger-commands)
+  (when (memq this-command dired-preview-trigger-commands)
     (dired-preview-display-file)))
 
 (defun dired-preview-disable-preview ()
