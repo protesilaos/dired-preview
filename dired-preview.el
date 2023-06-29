@@ -199,13 +199,6 @@ See user option `dired-preview-ignored-extensions-regexp'."
        (not (dired-preview--file-ignored-p file))
        (not (dired-preview--file-large-p file))))
 
-(defun dired-preview--return-preview-buffer (file)
-  "Return buffer to preview FILE in.
-Determine the propriety of this action by checking that FILE
-conforms with `dired-preview--preview-p'."
-  (when (dired-preview--preview-p file)
-    (dired-preview--add-to-previews file)))
-
 (defun dired-preview--delete-windows ()
   "Delete preview windows."
   (mapc
@@ -225,13 +218,17 @@ conforms with `dired-preview--preview-p'."
    (dired-preview--get-buffers))
   (setq dired-preview--buffers nil))
 
-(defvar dired-preview--timer nil
-  "Most recent timer object to display a preview.")
-
 (defun dired-preview--close-previews ()
   "Kill preview buffers and delete their windows."
   (dired-preview--delete-windows)
   (dired-preview--kill-buffers))
+
+(defun dired-preview--return-preview-buffer (file)
+  "Return buffer to preview FILE in.
+Determine the propriety of this action by checking that FILE
+conforms with `dired-preview--preview-p'."
+  (when (dired-preview--preview-p file)
+    (dired-preview--add-to-previews file)))
 
 (defun dired-preview--close-previews-outside-dired ()
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
@@ -258,6 +255,9 @@ Only do it with the current major mode is Dired."
     (display-buffer
      buffer
      dired-preview-display-action-alist)))
+
+(defvar dired-preview--timer nil
+  "Most recent timer object to display a preview.")
 
 (defun dired-preview--cancel-timer ()
   "Cancel `dired-preview--timer' if it is a timer object."
