@@ -94,6 +94,12 @@ Used by the default value of `dired-preview-display-action-alist'."
     (slot . -1)
     (window-width . 0.3)
     (dedicated . t)
+    ;; FIXME 2023-06-29: Should `dired-preview-set-up-preview-window'
+    ;; be part of the `body-function'?  It seems wrong as the user may
+    ;; omit this entry from the alist, thus breaking the preview. It
+    ;; is better to handle the `delayed-mode-hooks' in
+    ;; `dired-preview--find-file-no-select' and then find out another
+    ;; place to set the window parameter.
     (body-function . dired-preview-set-up-preview-window)
     (window-parameters . ((no-other-window . t)
                           (mode-line-format . ("%e"
@@ -232,6 +238,7 @@ conforms with `dired-preview--preview-p'."
   (when (not (eq major-mode 'dired-mode))
     (dired-preview--close-previews)))
 
+;; NOTE 2023-06-29: See the FIXME for `dired-preview-display-action-alist'.
 (defun dired-preview-set-up-preview-window (window &rest _)
   "Set WINDOW `:preview' parameter.
 Use this as the `body-function' in the user option
