@@ -137,7 +137,7 @@ See `dired-preview--find-file-no-select' for how hooks are
 delayed and `dired-preview-set-up-preview-window' for how this function
 is used."
   (when (and delay-mode-hooks (current-buffer))
-    (run-mode-hooks delayed-mode-hooks)
+    (apply #'run-hooks (delete-dups delayed-mode-hooks))
     (set-window-parameter (selected-window) 'dired-preview-window nil)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local)))
 
