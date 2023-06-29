@@ -139,6 +139,7 @@ is used."
   (when (and delay-mode-hooks (current-buffer))
     (apply #'run-hooks (delete-dups delayed-mode-hooks))
     (set-window-parameter (selected-window) 'dired-preview-window nil)
+    (kill-local-variable 'delayed-mode-hooks)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local)))
 
 (defun dired-preview--add-to-previews (file)
