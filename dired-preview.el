@@ -251,7 +251,15 @@ Only do it with the current major mode is Dired."
   ;; We check for `dired-mode' because we want to avoid the scenario
   ;; where the user switches to another buffer/window/frame before the
   ;; timer elapses.
-  (when (eq major-mode 'dired-mode)
+  (when (and (eq major-mode 'dired-mode)
+             ;; FIXME 2023-06-29: We check again for the file in Dired
+             ;; because this function runs on a timer and we only want
+             ;; it to happen if the file at point is still the one we
+             ;; were about to display.  There probably is a better way
+             ;; of doing things, given that `dired-file-name-at-point'
+             ;; is called by the `dired-preview-display-file' that
+             ;; ultimately calls this one.
+             (eq buffer (get-file-buffer (dired-file-name-at-point))))
     (display-buffer
      buffer
      dired-preview-display-action-alist)))
