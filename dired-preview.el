@@ -268,8 +268,8 @@ Only do it with the current major mode is Dired."
   "Display BUFFER with `dired-preview-delay'."
   (dired-preview--cancel-timer)
   (setq dired-preview--timer
-        (run-with-timer dired-preview-delay nil
-                        #'dired-preview--display-buffer buffer)))
+        (run-with-idle-timer dired-preview-delay
+                             nil #'dired-preview--display-buffer buffer)))
 
 (defun dired-preview-display-file ()
   "Display preview of `dired-file-name-at-point' if appropriate.
