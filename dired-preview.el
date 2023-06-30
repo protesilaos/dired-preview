@@ -96,10 +96,7 @@ Used by the default value of `dired-preview-display-action-alist'."
     (dedicated . t)
     ;; FIXME 2023-06-29: Should `dired-preview-set-up-preview-window'
     ;; be part of the `body-function'?  It seems wrong as the user may
-    ;; omit this entry from the alist, thus breaking the preview. It
-    ;; is better to handle the `delayed-mode-hooks' in
-    ;; `dired-preview--find-file-no-select' and then find out another
-    ;; place to set the window parameter.
+    ;; omit this entry from the alist, thus breaking the preview.
     (body-function . dired-preview-set-up-preview-window)
     (window-parameters . ((no-other-window . t)
                           (mode-line-format . ("%e"
@@ -155,6 +152,8 @@ Always return FILE buffer."
     (if (buffer-live-p buffer)
         buffer
       (setq buffer (dired-preview--find-file-no-select file))
+      (with-current-buffer buffer
+        (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
       (add-to-list 'dired-preview--buffers buffer)
       buffer)))
 
@@ -242,8 +241,7 @@ Use this as the `body-function' in the user option
 `dired-preview-display-action-alist'."
   (set-window-parameter window 'dired-preview-window :preview)
   (with-current-buffer (window-buffer window)
-    (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
-    (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local)))
+    (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)))
 
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
