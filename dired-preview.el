@@ -263,6 +263,18 @@ Only do it with the current major mode is Dired."
      buffer
      dired-preview-display-action-alist)))
 
+(defun dired-preview-display-file ()
+  "Display preview of `dired-file-name-at-point' if appropriate.
+Return buffer object of displayed buffer."
+  (if-let* ((file (dired-file-name-at-point))
+            (buffer (dired-preview--return-preview-buffer file)))
+        (dired-preview--display-buffer buffer)
+    (dired-preview--close-previews)))
+
+(defvar dired-preview-trigger-commands
+  '(dired-next-line dired-previous-line dired-mark dired-goto-file)
+  "List of Dired commands that trigger a preview.")
+
 (defvar dired-preview--timer nil
   "Most recent timer object to display a preview.")
 
@@ -271,30 +283,15 @@ Only do it with the current major mode is Dired."
   (when (timerp dired-preview--timer)
     (cancel-timer dired-preview--timer)))
 
-(defun dired-preview--display-buffer-with-delay (buffer)
-  "Display BUFFER with `dired-preview-delay'."
-  (dired-preview--cancel-timer)
-  (setq dired-preview--timer
-        (run-with-idle-timer
-         dired-preview-delay
-         nil #'dired-preview--display-buffer buffer)))
-
-(defun dired-preview-display-file ()
-  "Display preview of `dired-file-name-at-point' if appropriate.
-Return buffer object of displayed buffer."
-  (if-let* ((file (dired-file-name-at-point))
-            (buffer (dired-preview--return-preview-buffer file)))
-        (dired-preview--display-buffer-with-delay buffer)
-    (dired-preview--close-previews)))
-
-(defvar dired-preview-trigger-commands
-  '(dired-next-line dired-previous-line dired-mark dired-goto-file)
-  "List of Dired commands that trigger a preview.")
-
 (defun dired-preview-trigger ()
   "Trigger display of file at point after `dired-preview-trigger-commands'."
   (when (memq this-command dired-preview-trigger-commands)
-    (dired-preview-display-file)))
+    (dired-preview--cancel-timer)
+    (setq dired-preview--timer
+          (run-with-idle-timer
+           dired-preview-delay
+           nil
+           #'dired-preview-display-file))))
 
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
