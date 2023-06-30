@@ -241,6 +241,9 @@ Use this as the `body-function' in the user option
 `dired-preview-display-action-alist'."
   (set-window-parameter window 'dired-preview-window :preview)
   (with-current-buffer (window-buffer window)
+    ;; FIXME 2023-06-30: This is the wrong scope, because it will not
+    ;; be relevant when using `switch-to-buffer', `previous-buffer',
+    ;; etc.  Basically, it assumes we are in a Dired-only environment.
     (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)))
 
 (defun dired-preview--display-buffer (buffer)
