@@ -201,8 +201,8 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--close-previews ()
   "Kill preview buffers and delete their windows."
-  (dired-preview--kill-buffers)
-  (dired-preview--delete-windows))
+  (dired-preview--delete-windows)
+  (dired-preview--kill-buffers))
 
 (defun dired-preview--return-preview-buffer (file)
   "Return buffer to preview FILE in."
