@@ -82,28 +82,16 @@
   :group 'dired-preview
   :type 'integer)
 
-(defcustom dired-preview-buffer-name "*dired-preview*"
-  "Name of preview buffer.
-Used by the default value of `dired-preview-display-action-alist'."
-  :group 'dired-preview
-  :type 'string)
-
-(defcustom dired-preview-display-action-alist
-  `((display-buffer-in-side-window)
-    (side . right)
-    (slot . -1)
-    (window-width . 0.3)
-    (dedicated . t)
-    (window-parameters . ((no-other-window . t)
-                          (mode-line-format . ("%e"
-                                               mode-line-front-space
-                                               ,dired-preview-buffer-name)))))
-  "The `display-buffer' action for the preview.
+(defcustom dired-preview-display-action-alist-function
+  #'dired-preview-display-action-alist-dwim
+  "Function to return the `display-buffer' action for the preview.
 This is the same data that is passed to `display-buffer-alist'.
 Read Info node `(elisp) Displaying Buffers'.  As such, it is
-meant for experienced users."
+meant for experienced users.  See the reference function
+`dired-preview-display-action-alist-dwim' for the implementation
+details."
   :group 'dired-preview
-  :type 'alist)
+  :type 'function)
 
 (defcustom dired-preview-delay 0.7
   "Time in seconds to wait before previewing."
@@ -222,11 +210,51 @@ See user option `dired-preview-ignored-extensions-regexp'."
     (set-window-parameter window 'dired-preview-window :preview)
     (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
 
+(defvar dired-preview-buffer-name "*dired-preview*"
+  "Name of preview buffer.")
+
+(defun dired-preview-return-window-size (dimension)
+  "Return window size by checking for DIMENSION.
+DIMENSION is either a `:width' or `:height' keyword.  It is
+checked against `split-width-threshold' or
+`split-height-threshold'"
+  (pcase dimension
+    (:width (if (>= (* fill-column 2) split-width-threshold)
+                fill-column
+              (- (window-body-width) fill-column)))
+    (:height (let ((height (frame-height)))
+               (if (>= (* height 2) split-height-threshold)
+                   height
+                 (- (window-body-height) height))))))
+
+(defun dired-preview-display-action-side ()
+  "Pick a side window that is appropriate for the given frame."
+  (if (>= (frame-pixel-width) (frame-pixel-height))
+      `(:side right :dimension window-width :size ,(dired-preview-return-window-size :width))
+    `(:side bottom :dimension window-height :size ,(dired-preview-return-window-size :height))))
+
+(defun dired-preview-display-action-alist-dwim ()
+  "Reference function for `dired-preview-display-action-alist-function'.
+Return a `display-buffer' action alist, as described in the
+aforementioned user option."
+  (let ((properties (dired-preview-display-action-side)))
+    `((display-buffer-in-side-window)
+      (side . ,(plist-get properties :side))
+      (slot . -1)
+      (,(plist-get properties :dimension) . ,(plist-get properties :size))
+      (dedicated . t)
+      (window-parameters . ((no-other-window . t)
+                            (mode-line-format . ("%e"
+                                                 mode-line-front-space
+                                                 ,dired-preview-buffer-name)))))))
+
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
 Only do it with the current major mode is Dired."
-  (display-buffer buffer dired-preview-display-action-alist)
-  (dired-preview-set-up-preview-window buffer))
+  (display-buffer buffer (funcall (or dired-preview-display-action-alist-function
+                                      #'dired-preview-display-action-alist-dwim)))
+  (when (window-live-p (get-buffer-window buffer))
+    (dired-preview-set-up-preview-window buffer)))
 
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
