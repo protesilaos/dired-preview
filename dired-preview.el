@@ -232,7 +232,8 @@ conforms with `dired-preview--preview-p'."
 (defun dired-preview--close-previews-outside-dired ()
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
   (when (not (eq major-mode 'dired-mode))
-    (dired-preview--close-previews)))
+    (dired-preview--close-previews)
+    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
 
 ;; NOTE 2023-06-29: See the FIXME for `dired-preview-display-action-alist'.
 (defun dired-preview-set-up-preview-window (window &rest _)
@@ -241,10 +242,7 @@ Use this as the `body-function' in the user option
 `dired-preview-display-action-alist'."
   (set-window-parameter window 'dired-preview-window :preview)
   (with-current-buffer (window-buffer window)
-    ;; FIXME 2023-06-30: This is the wrong scope, because it will not
-    ;; be relevant when using `switch-to-buffer', `previous-buffer',
-    ;; etc.  Basically, it assumes we are in a Dired-only environment.
-    (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)))
+    (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
