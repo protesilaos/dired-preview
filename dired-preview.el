@@ -210,7 +210,9 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--close-previews-outside-dired ()
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
-  (when (not (eq major-mode 'dired-mode))
+  (when (and (not (one-window-p :no-minibuffer))
+             (not (minibufferp))
+             (not (eq major-mode 'dired-mode)))
     (dired-preview--close-previews)
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
 
