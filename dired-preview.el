@@ -179,6 +179,10 @@ DIMENSION is either a `:width' or `:height' keyword.  It is
 checked against `split-width-threshold' or
 `split-height-threshold'"
   (pcase dimension
+    ;; FIXME 2023-07-03: In both cases, this assumes that the "else"
+    ;; result is smaller than the "then".  This is not a given though,
+    ;; because we do not know the result of the calculation ahead of
+    ;; time.
     (:width (if (>= (* fill-column 2) split-width-threshold)
                 fill-column
               (- (window-body-width) fill-column)))
