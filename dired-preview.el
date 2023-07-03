@@ -166,46 +166,9 @@ See user option `dired-preview-ignored-extensions-regexp'."
               (window (get-buffer-window buffer)))
     (window-live-p window)))
 
-(defun dired-preview--delete-windows ()
-  "Delete preview windows."
-  (mapc
-   (lambda (window)
-     (delete-window window))
-   (dired-preview--get-windows)))
-
-(defun dired-preview--kill-buffers ()
-  "Kill preview buffers."
-  (mapc
-   (lambda (buffer)
-     (when (and (not (eq buffer (current-buffer)))
-                (window-parameter (get-buffer-window buffer) 'dired-preview-window))
-       (ignore-errors
-         (kill-buffer-if-not-modified buffer))))
-   (dired-preview--get-buffers))
-  (setq dired-preview--buffers nil))
-
-(defun dired-preview--close-previews ()
-  "Kill preview buffers and delete their windows."
-  (dired-preview--delete-windows)
-  (dired-preview--kill-buffers))
-
 (defun dired-preview--return-preview-buffer (file)
   "Return buffer to preview FILE in."
   (dired-preview--add-to-previews file))
-
-(defun dired-preview--close-previews-outside-dired ()
-  "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
-  (when (and (not (one-window-p :no-minibuffer))
-             (not (minibufferp))
-             (not (eq major-mode 'dired-mode)))
-    (dired-preview--close-previews)
-    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
-
-(defun dired-preview-set-up-preview-window (buffer)
-  "Set BUFFER window `:preview' parameter."
-  (when-let ((window (get-buffer-window buffer)))
-    (set-window-parameter window 'dired-preview-window :preview)
-    (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
 
 (defvar dired-preview-buffer-name "*dired-preview*"
   "Name of preview buffer.")
@@ -245,19 +208,6 @@ aforementioned user option."
                                                  mode-line-front-space
                                                  ,dired-preview-buffer-name)))))))
 
-(defun dired-preview--display-buffer (buffer)
-  "Call `display-buffer' for BUFFER.
-Only do it with the current major mode is Dired."
-  (display-buffer buffer (funcall (or dired-preview-display-action-alist-function
-                                      #'dired-preview-display-action-alist-dwim)))
-  (when (window-live-p (get-buffer-window buffer))
-    (dired-preview-set-up-preview-window buffer)))
-
-(defun dired-preview-display-file (file)
-  "Display preview of FILE if appropriate."
-  (when-let ((buffer (dired-preview--return-preview-buffer file)))
-    (dired-preview--display-buffer buffer)))
-
 (defvar dired-preview-trigger-commands
   '(dired-next-line dired-previous-line dired-mark dired-goto-file)
   "List of Dired commands that trigger a preview.")
@@ -269,6 +219,55 @@ Only do it with the current major mode is Dired."
   "Cancel `dired-preview--timer' if it is a timer object."
   (when (timerp dired-preview--timer)
     (cancel-timer dired-preview--timer)))
+
+(defun dired-preview--delete-windows ()
+  "Delete preview windows."
+  (mapc
+   (lambda (window)
+     (unless (or (eq window (minibuffer-window))
+                 (one-window-p))
+       (delete-window window)))
+   (dired-preview--get-windows)))
+
+(defun dired-preview--kill-buffers ()
+  "Kill preview buffers."
+  (mapc
+   (lambda (buffer)
+     (when (and (not (eq buffer (current-buffer)))
+                (window-parameter (get-buffer-window buffer) 'dired-preview-window))
+       (ignore-errors
+         (kill-buffer-if-not-modified buffer))))
+   (dired-preview--get-buffers))
+  (setq dired-preview--buffers nil))
+
+(defun dired-preview--close-previews ()
+  "Kill preview buffers and delete their windows."
+  (dired-preview--cancel-timer)
+  (dired-preview--delete-windows)
+  (dired-preview--kill-buffers))
+
+(defun dired-preview--close-previews-outside-dired ()
+  "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
+  (when (not (eq major-mode 'dired-mode))
+    (dired-preview--close-previews)
+    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
+
+(defun dired-preview--display-buffer (buffer)
+  "Call `display-buffer' for BUFFER.
+Only do it with the current major mode is Dired."
+  (display-buffer
+   buffer
+   (funcall (or dired-preview-display-action-alist-function
+                #'dired-preview-display-action-alist-dwim))))
+
+(defun dired-preview-display-file (file)
+  "Display preview of FILE if appropriate."
+  (when-let ((buffer (dired-preview--return-preview-buffer file)))
+    (dired-preview--display-buffer buffer)
+    (if-let ((window (get-buffer-window buffer)))
+        (with-selected-window window
+          (set-window-parameter window 'dired-preview-window :preview))
+      (dired-preview--close-previews))))
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
@@ -282,26 +281,24 @@ Only do it with the current major mode is Dired."
   "Trigger display of file at point after `dired-preview-trigger-commands'.
 With optional NO-DELAY do not start a timer.  Otherwise produce
 the preview with `dired-preview-delay' of idleness."
+  (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
   (dired-preview--cancel-timer)
-  (let* ((file (dired-file-name-at-point)))
-    (cond
-     ((and file
-           (dired-preview--preview-p file)
-           (memq this-command dired-preview-trigger-commands))
-      (if no-delay
-          (dired-preview-display-file file)
-        (setq dired-preview--timer
-              (run-with-idle-timer
-               dired-preview-delay
-               nil
-               #'dired-preview-display-file
-               file))))
-     ((and file
-           (not (dired-preview--preview-p file))
-           (eq major-mode 'dired-mode))
-      (dired-preview--close-previews))
-     (t
-      (dired-preview--close-previews-outside-dired)))))
+  (if-let* ((file (dired-file-name-at-point)))
+      (cond
+       ((and (dired-preview--preview-p file)
+             (memq this-command dired-preview-trigger-commands))
+        (if no-delay
+            (dired-preview-display-file file)
+          (setq dired-preview--timer
+                (run-with-idle-timer
+                 dired-preview-delay
+                 nil
+                 #'dired-preview-display-file
+                 file))))
+       ((and (not (dired-preview--preview-p file))
+             (eq major-mode 'dired-mode))
+        (dired-preview--close-previews)))
+    (dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
@@ -315,7 +312,6 @@ the preview with `dired-preview-delay' of idleness."
   (unless (eq major-mode 'dired-mode)
     (error "Can only use `dired-preview' in Dired"))
   (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
-  (add-hook 'post-command-hook #'dired-preview--close-previews-outside-dired nil :local)
   (dired-preview-trigger :no-delay))
 
 ;;;###autoload
