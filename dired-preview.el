@@ -271,7 +271,7 @@ Only do it with the current major mode is Dired."
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
-  (and (file-exists-p file)
+  (and (file-regular-p file)
        (not (file-directory-p file))
        (not (dired-preview--file-displayed-p file))
        (not (dired-preview--file-ignored-p file))
