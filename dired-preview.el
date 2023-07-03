@@ -115,13 +115,10 @@ details."
     (find-file-noselect file :nowarn)))
 
 (defun dired-preview--run-mode-hooks ()
-  "Run mode hooks in current buffer, if `delayed-mode-hooks' is non-nil.
-See `dired-preview--find-file-no-select' for how hooks are
-delayed and `dired-preview-set-up-preview-window' for how this function
-is used."
+  "Run mode hooks in current buffer, if `delayed-mode-hooks' is non-nil."
   (when (and delay-mode-hooks (current-buffer))
-    (apply #'run-hooks (delete-dups delayed-mode-hooks))
     (set-window-parameter (selected-window) 'dired-preview-window nil)
+    (apply #'run-hooks (delete-dups delayed-mode-hooks))
     (kill-local-variable 'delayed-mode-hooks)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local)))
 
