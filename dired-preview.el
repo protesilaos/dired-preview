@@ -202,10 +202,7 @@ aforementioned user option."
       (slot . -1)
       (,(plist-get properties :dimension) . ,(plist-get properties :size))
       (dedicated . t)
-      (window-parameters . ((no-other-window . t)
-                            (mode-line-format . ("%e"
-                                                 mode-line-front-space
-                                                 ,dired-preview-buffer-name)))))))
+      (window-parameters . ((no-other-window . t))))))
 
 (defvar dired-preview-trigger-commands
   '(dired-next-line dired-previous-line dired-mark dired-goto-file)
