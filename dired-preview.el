@@ -248,7 +248,7 @@ aforementioned user option."
 
 (defun dired-preview--close-previews-outside-dired ()
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
-  (when (not (eq major-mode 'dired-mode))
+  (unless (eq major-mode 'dired-mode)
     (dired-preview--close-previews)
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
 
