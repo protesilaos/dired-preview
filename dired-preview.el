@@ -226,6 +226,8 @@ aforementioned user option."
        (delete-window window)))
    (dired-preview--get-windows)))
 
+;; TODO 2023-07-05: We need a garbage collection function so that we
+;; do not accummulate too many buffers that exceed a given threshold.
 (defun dired-preview--kill-buffers ()
   "Kill preview buffers."
   (mapc
