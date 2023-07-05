@@ -190,7 +190,7 @@ checked against `split-width-threshold' or
             ((>= width (window-body-height)))
             ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-return-window-size :width))
-    `(:side bottom :dimension window-height :size ,(dired-preview-return-window-size :height))))
+    `(:side below :dimension window-height :size ,(dired-preview-return-window-size :height))))
 
 (defun dired-preview-display-action-alist-dwim ()
   "Reference function for `dired-preview-display-action-alist-function'.
