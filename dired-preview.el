@@ -223,8 +223,9 @@ aforementioned user option."
   "Delete preview windows."
   (mapc
    (lambda (window)
-     (unless (or (eq window (minibuffer-window))
-                 (one-window-p))
+     (unless (or (one-window-p)
+                 (eq window (minibuffer-window))
+                 (eq window (selected-window)))
        (delete-window window)))
    (dired-preview--get-windows)))
 
