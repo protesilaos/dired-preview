@@ -202,9 +202,8 @@ checked against `split-width-threshold' or
 Return a `display-buffer' action alist, as described in the
 aforementioned user option."
   (let ((properties (dired-preview-display-action-side)))
-    `((display-buffer-in-side-window)
-      (side . ,(plist-get properties :side))
-      (slot . -1)
+    `((display-buffer-in-direction)
+      (direction . ,(plist-get properties :side))
       (,(plist-get properties :dimension) . ,(plist-get properties :size))
       (dedicated . t))))
 
