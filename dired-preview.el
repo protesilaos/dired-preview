@@ -283,21 +283,17 @@ With optional NO-DELAY do not start a timer.  Otherwise produce
 the preview with `dired-preview-delay' of idleness."
   (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
   (dired-preview--cancel-timer)
-  (if-let* ((file (dired-file-name-at-point)))
-      (cond
-       ((and (dired-preview--preview-p file)
-             (memq this-command dired-preview-trigger-commands))
-        (if no-delay
-            (dired-preview-display-file file)
-          (setq dired-preview--timer
-                (run-with-idle-timer
-                 dired-preview-delay
-                 nil
-                 #'dired-preview-display-file
-                 file))))
-       ((and (not (dired-preview--preview-p file))
-             (eq major-mode 'dired-mode))
-        (dired-preview--close-previews)))
+  (if-let* ((file (dired-file-name-at-point))
+            ((dired-preview--preview-p file))
+            ((memq this-command dired-preview-trigger-commands)))
+      (if no-delay
+          (dired-preview-display-file file)
+        (setq dired-preview--timer
+              (run-with-idle-timer
+               dired-preview-delay
+               nil
+               #'dired-preview-display-file
+               file)))
     (dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview-disable-preview ()
