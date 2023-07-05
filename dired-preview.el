@@ -117,6 +117,9 @@ details."
 (defun dired-preview--run-mode-hooks ()
   "Run mode hooks in current buffer, if `delayed-mode-hooks' is non-nil."
   (when (and delay-mode-hooks (current-buffer))
+    ;; FIXME 2023-07-05: When we remove the window parameters, we
+    ;; disconnect the window from the preview.  Then what is the point
+    ;; of trying to close previews outside of Dired?  Which previews?
     (set-window-parameter (selected-window) 'dired-preview-window nil)
     (set-window-parameter (selected-window) 'dedicated nil)
     (apply #'run-hooks (delete-dups delayed-mode-hooks))
