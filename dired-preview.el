@@ -202,6 +202,9 @@ checked against `split-width-threshold' or
 Return a `display-buffer' action alist, as described in the
 aforementioned user option."
   (let ((properties (dired-preview-display-action-side)))
+    ;; FIXME 2023-07-05: This can distort the size of the Dired
+    ;; window, making it difficult to see what the next file on the
+    ;; list is.
     `((display-buffer-in-direction)
       (direction . ,(plist-get properties :side))
       (,(plist-get properties :dimension) . ,(plist-get properties :size))
