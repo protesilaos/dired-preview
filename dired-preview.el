@@ -261,12 +261,12 @@ Only do it with the current major mode is Dired."
 
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
+  (dired-preview--delete-windows)
   (when-let ((buffer (dired-preview--return-preview-buffer file)))
     (dired-preview--display-buffer buffer)
-    (if-let ((window (get-buffer-window buffer)))
-        (with-selected-window window
-          (set-window-parameter window 'dired-preview-window :preview))
-      (dired-preview--close-previews))))
+    (when-let ((window (get-buffer-window buffer)))
+      (with-selected-window window
+        (set-window-parameter window 'dired-preview-window :preview)))))
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
