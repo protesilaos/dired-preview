@@ -143,12 +143,13 @@ Always return FILE buffer."
        buffer))
    dired-preview--buffers))
 
+(defun dired-preview--window-parameter-p (window)
+  "Return non-nil if WINDOW has `dired-preview-window' parameter."
+  (window-parameter window 'dired-preview-window))
+
 (defun dired-preview--get-windows ()
   "Return windows that show previews."
-  (seq-filter
-   (lambda (window)
-     (window-parameter window 'dired-preview-window))
-   (window-list)))
+  (seq-filter #'dired-preview--window-parameter-p (window-list)))
 
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
@@ -230,7 +231,7 @@ aforementioned user option."
   (mapc
    (lambda (buffer)
      (when (and (not (eq buffer (current-buffer)))
-                (window-parameter (get-buffer-window buffer) 'dired-preview-window))
+                (dired-preview--window-parameter-p (get-buffer-window buffer)))
        (ignore-errors
          (kill-buffer-if-not-modified buffer))))
    (dired-preview--get-buffers))
