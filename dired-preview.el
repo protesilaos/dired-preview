@@ -181,19 +181,14 @@ DIMENSION is either a `:width' or `:height' keyword.  It is
 checked against `split-width-threshold' or
 `split-height-threshold'"
   (pcase dimension
-    (:width (if (and (numberp split-width-threshold)
-                     (> (window-total-width) split-width-threshold)
-                     (> split-width-threshold fill-column))
-                split-width-threshold
-              fill-column))
-    (:height (if (and (numberp split-height-threshold)
-                      (> (window-total-height) split-height-threshold))
-                 split-height-threshold
-               (floor (window-height) 2)))))
+    (:width fill-column)
+    (:height (floor (window-height) 2))))
 
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
-  (if (>= (frame-pixel-width) (frame-pixel-height))
+  (if-let* ((width (window-body-width))
+            ((>= width (window-body-height)))
+            ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-return-window-size :width))
     `(:side bottom :dimension window-height :size ,(dired-preview-return-window-size :height))))
 
@@ -202,9 +197,6 @@ checked against `split-width-threshold' or
 Return a `display-buffer' action alist, as described in the
 aforementioned user option."
   (let ((properties (dired-preview-display-action-side)))
-    ;; FIXME 2023-07-05: This can distort the size of the Dired
-    ;; window, making it difficult to see what the next file on the
-    ;; list is.
     `((display-buffer-in-direction)
       (direction . ,(plist-get properties :side))
       (,(plist-get properties :dimension) . ,(plist-get properties :size))
