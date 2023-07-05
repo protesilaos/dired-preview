@@ -181,11 +181,14 @@ checked against `split-width-threshold' or
 `split-height-threshold'"
   (pcase dimension
     (:width (if (and (numberp split-width-threshold)
-                     (> (window-width) split-width-threshold)
+                     (> (window-total-width) split-width-threshold)
                      (> split-width-threshold fill-column))
                 split-width-threshold
               fill-column))
-    (:height (floor split-height-threshold 2))))
+    (:height (if (and (numberp split-height-threshold)
+                      (> (window-total-height) split-height-threshold))
+                 split-height-threshold
+               (floor (window-height) 2)))))
 
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
