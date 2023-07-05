@@ -118,6 +118,7 @@ details."
   "Run mode hooks in current buffer, if `delayed-mode-hooks' is non-nil."
   (when (and delay-mode-hooks (current-buffer))
     (set-window-parameter (selected-window) 'dired-preview-window nil)
+    (set-window-parameter (selected-window) 'dedicated nil)
     (apply #'run-hooks (delete-dups delayed-mode-hooks))
     (kill-local-variable 'delayed-mode-hooks)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local)))
