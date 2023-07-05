@@ -205,8 +205,7 @@ aforementioned user option."
       (side . ,(plist-get properties :side))
       (slot . -1)
       (,(plist-get properties :dimension) . ,(plist-get properties :size))
-      (dedicated . t)
-      (window-parameters . ((no-other-window . t))))))
+      (dedicated . t))))
 
 (defvar dired-preview-trigger-commands
   '(dired-next-line dired-previous-line dired-mark dired-goto-file)
