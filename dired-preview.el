@@ -204,14 +204,14 @@ Always return FILE buffer."
     (add-to-list 'dired-preview--buffers buffer)
     buffer))
 
-(defun dired-preview--return-preview-buffer (file)
+(defun dired-preview--get-preview-buffer (file)
   "Return buffer to preview FILE in."
   (dired-preview--add-to-previews file))
 
 (defvar dired-preview-buffer-name "*dired-preview*"
   "Name of preview buffer.")
 
-(defun dired-preview-return-window-size (dimension)
+(defun dired-preview-get-window-size (dimension)
   "Return window size by checking for DIMENSION.
 DIMENSION is either a `:width' or `:height' keyword.  It is
 checked against `split-width-threshold' or
@@ -225,8 +225,8 @@ checked against `split-width-threshold' or
   (if-let* ((width (window-body-width))
             ((>= width (window-body-height)))
             ((>= width split-width-threshold)))
-      `(:side right :dimension window-width :size ,(dired-preview-return-window-size :width))
-    `(:side bottom :dimension window-height :size ,(dired-preview-return-window-size :height))))
+      `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
+    `(:side bottom :dimension window-height :size ,(dired-preview-get-window-size :height))))
 
 (defun dired-preview-display-action-alist-dwim ()
   "Reference function for `dired-preview-display-action-alist-function'.
@@ -272,7 +272,7 @@ Only do it with the current major mode is Dired."
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
   (dired-preview--delete-windows)
-  (when-let ((buffer (dired-preview--return-preview-buffer file)))
+  (when-let ((buffer (dired-preview--get-preview-buffer file)))
     (dired-preview--display-buffer buffer)
     (when-let ((window (get-buffer-window buffer)))
       (dired-preview--set-window-parameters window t))))
