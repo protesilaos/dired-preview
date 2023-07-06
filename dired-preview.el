@@ -114,17 +114,23 @@ details."
         (delay-mode-hooks t))
     (find-file-noselect file :nowarn)))
 
+(defun dired-preview--set-window-parameters (window value)
+  "Set desired WINDOW parameters to VALUE."
+  (with-selected-window window
+    (set-window-parameter window 'dired-preview-window value)
+    (set-window-parameter window 'dedicated value)
+    (set-window-parameter window 'no-other-window value)))
+
 (defun dired-preview--run-mode-hooks ()
   "Run mode hooks in current buffer, if `delayed-mode-hooks' is non-nil."
-  (when (and delay-mode-hooks (current-buffer))
-    ;; FIXME 2023-07-05: When we remove the window parameters, we
-    ;; disconnect the window from the preview.  Then what is the point
-    ;; of trying to close previews outside of Dired?  Which previews?
-    (set-window-parameter (selected-window) 'dired-preview-window nil)
-    (set-window-parameter (selected-window) 'dedicated nil)
+  (cond
+   ((window-parameter (selected-window) 'dired-preview-window)
+    (dired-preview--delete-windows))
+   ((and delay-mode-hooks (current-buffer))
+    (dired-preview--set-window-parameters (selected-window) nil)
     (apply #'run-hooks (delete-dups delayed-mode-hooks))
     (kill-local-variable 'delayed-mode-hooks)
-    (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local)))
+    (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local))))
 
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
@@ -132,11 +138,11 @@ Always return FILE buffer."
   (let ((buffer (find-buffer-visiting file)))
     (if (buffer-live-p buffer)
         buffer
-      (setq buffer (dired-preview--find-file-no-select file))
-      (with-current-buffer buffer
-        (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
-      (add-to-list 'dired-preview--buffers buffer)
-      buffer)))
+      (setq buffer (dired-preview--find-file-no-select file)))
+    (with-current-buffer buffer
+      (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
+    (add-to-list 'dired-preview--buffers buffer)
+    buffer))
 
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
@@ -193,17 +199,16 @@ checked against `split-width-threshold' or
             ((>= width (window-body-height)))
             ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-return-window-size :width))
-    `(:side below :dimension window-height :size ,(dired-preview-return-window-size :height))))
+    `(:side bottom :dimension window-height :size ,(dired-preview-return-window-size :height))))
 
 (defun dired-preview-display-action-alist-dwim ()
   "Reference function for `dired-preview-display-action-alist-function'.
 Return a `display-buffer' action alist, as described in the
 aforementioned user option."
   (let ((properties (dired-preview-display-action-side)))
-    `((display-buffer-in-direction)
-      (direction . ,(plist-get properties :side))
-      (,(plist-get properties :dimension) . ,(plist-get properties :size))
-      (dedicated . t))))
+    `((display-buffer-in-side-window)
+      (side . ,(plist-get properties :side))
+      (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
 
 (defvar dired-preview-trigger-commands
   '(dired-next-line dired-previous-line dired-mark dired-goto-file)
@@ -233,12 +238,16 @@ aforementioned user option."
   "Kill preview buffers."
   (mapc
    (lambda (buffer)
-     (when (and (not (eq buffer (current-buffer)))
-                (dired-preview--window-parameter-p (get-buffer-window buffer)))
-       (ignore-errors
-         (kill-buffer-if-not-modified buffer))))
-   (dired-preview--get-buffers))
-  (setq dired-preview--buffers nil))
+     (let ((window (get-buffer-window buffer)))
+       (cond
+        ((and (dired-preview--window-parameter-p window)
+              (current-buffer))
+         (delete-window (get-buffer-window buffer)))
+        ((dired-preview--window-parameter-p window)
+         (ignore-errors
+           (kill-buffer-if-not-modified buffer)
+           (setq dired-preview--buffers (delq buffer dired-preview--buffers)))))))
+     (dired-preview--get-buffers)))
 
 (defun dired-preview--close-previews ()
   "Kill preview buffers and delete their windows."
@@ -266,8 +275,7 @@ Only do it with the current major mode is Dired."
   (when-let ((buffer (dired-preview--return-preview-buffer file)))
     (dired-preview--display-buffer buffer)
     (when-let ((window (get-buffer-window buffer)))
-      (with-selected-window window
-        (set-window-parameter window 'dired-preview-window :preview)))))
+      (dired-preview--set-window-parameters window t))))
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
