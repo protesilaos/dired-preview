@@ -101,18 +101,65 @@ details."
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
-(defun dired-preview--find-file-no-select (file)
-  "Call `find-file-noselect' on FILE with appropriate settings."
-  ;; NOTE: I learnt about `non-essential' and `delay-mode-hooks' from
-  ;; Daniel Mendler's `consult' package, which imnplements a preview
-  ;; functionality as well (more sophisticated than mine):
-  ;; <https://github.com/minad/consult>.
-  (let ((inhibit-message t)
-        (enable-dir-local-variables nil)
-        (enable-local-variables :safe)
-        (non-essential t)
-        (delay-mode-hooks t))
-    (find-file-noselect file :nowarn)))
+(defun dired-preview--get-buffers ()
+  "Return buffers that show previews."
+  (seq-filter
+   (lambda (buffer)
+     (when (and (bufferp buffer)
+                (buffer-live-p buffer))
+       buffer))
+   dired-preview--buffers))
+
+(defun dired-preview--window-parameter-p (window)
+  "Return non-nil if WINDOW has `dired-preview-window' parameter."
+  (window-parameter window 'dired-preview-window))
+
+;; TODO 2023-07-05: We need a garbage collection function so that we
+;; do not accummulate too many buffers that exceed a given threshold.
+(defun dired-preview--kill-buffers ()
+  "Kill preview buffers."
+  (mapc
+   (lambda (buffer)
+     (let ((window (get-buffer-window buffer)))
+       (cond
+        ((and (dired-preview--window-parameter-p window)
+              (current-buffer))
+         (delete-window (get-buffer-window buffer)))
+        ((dired-preview--window-parameter-p window)
+         (ignore-errors
+           (kill-buffer-if-not-modified buffer)
+           (setq dired-preview--buffers (delq buffer dired-preview--buffers)))))))
+     (dired-preview--get-buffers)))
+
+(defun dired-preview--get-windows ()
+  "Return windows that show previews."
+  (seq-filter #'dired-preview--window-parameter-p (window-list)))
+
+(defun dired-preview--delete-windows ()
+  "Delete preview windows."
+  (mapc
+   (lambda (window)
+     (unless (or (one-window-p)
+                 (eq window (minibuffer-window))
+                 (eq window (selected-window)))
+       (delete-window window)))
+   (dired-preview--get-windows)))
+
+(defun dired-preview--file-ignored-p (file)
+  "Return non-nil if FILE extension is among the ignored extensions.
+See user option `dired-preview-ignored-extensions-regexp'."
+  (when-let ((ext (file-name-extension file)))
+    (string-match-p ext dired-preview-ignored-extensions-regexp)))
+
+(defun dired-preview--file-large-p (file)
+  "Return non-nil if FILE exceeds `dired-preview-max-size'."
+  (> (file-attribute-size (file-attributes file)) dired-preview-max-size))
+
+(defun dired-preview--file-displayed-p (file)
+  "Return non-nil if FILE is already displayed in a window."
+  (when-let* ((buffer (get-file-buffer file))
+              (window (get-buffer-window buffer)))
+    (window-live-p window)))
 
 (defun dired-preview--set-window-parameters (window value)
   "Set desired WINDOW parameters to VALUE."
@@ -132,6 +179,19 @@ details."
     (kill-local-variable 'delayed-mode-hooks)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local))))
 
+(defun dired-preview--find-file-no-select (file)
+  "Call `find-file-noselect' on FILE with appropriate settings."
+  ;; NOTE: I learnt about `non-essential' and `delay-mode-hooks' from
+  ;; Daniel Mendler's `consult' package, which imnplements a preview
+  ;; functionality as well (more sophisticated than mine):
+  ;; <https://github.com/minad/consult>.
+  (let ((inhibit-message t)
+        (enable-dir-local-variables nil)
+        (enable-local-variables :safe)
+        (non-essential t)
+        (delay-mode-hooks t))
+    (find-file-noselect file :nowarn)))
+
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
 Always return FILE buffer."
@@ -143,39 +203,6 @@ Always return FILE buffer."
       (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
     (add-to-list 'dired-preview--buffers buffer)
     buffer))
-
-(defun dired-preview--get-buffers ()
-  "Return buffers that show previews."
-  (seq-filter
-   (lambda (buffer)
-     (when (and (bufferp buffer)
-                (buffer-live-p buffer))
-       buffer))
-   dired-preview--buffers))
-
-(defun dired-preview--window-parameter-p (window)
-  "Return non-nil if WINDOW has `dired-preview-window' parameter."
-  (window-parameter window 'dired-preview-window))
-
-(defun dired-preview--get-windows ()
-  "Return windows that show previews."
-  (seq-filter #'dired-preview--window-parameter-p (window-list)))
-
-(defun dired-preview--file-ignored-p (file)
-  "Return non-nil if FILE extension is among the ignored extensions.
-See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let ((ext (file-name-extension file)))
-    (string-match-p ext dired-preview-ignored-extensions-regexp)))
-
-(defun dired-preview--file-large-p (file)
-  "Return non-nil if FILE exceeds `dired-preview-max-size'."
-  (> (file-attribute-size (file-attributes file)) dired-preview-max-size))
-
-(defun dired-preview--file-displayed-p (file)
-  "Return non-nil if FILE is already displayed in a window."
-  (when-let* ((buffer (get-file-buffer file))
-              (window (get-buffer-window buffer)))
-    (window-live-p window)))
 
 (defun dired-preview--return-preview-buffer (file)
   "Return buffer to preview FILE in."
@@ -221,33 +248,6 @@ aforementioned user option."
   "Cancel `dired-preview--timer' if it is a timer object."
   (when (timerp dired-preview--timer)
     (cancel-timer dired-preview--timer)))
-
-(defun dired-preview--delete-windows ()
-  "Delete preview windows."
-  (mapc
-   (lambda (window)
-     (unless (or (one-window-p)
-                 (eq window (minibuffer-window))
-                 (eq window (selected-window)))
-       (delete-window window)))
-   (dired-preview--get-windows)))
-
-;; TODO 2023-07-05: We need a garbage collection function so that we
-;; do not accummulate too many buffers that exceed a given threshold.
-(defun dired-preview--kill-buffers ()
-  "Kill preview buffers."
-  (mapc
-   (lambda (buffer)
-     (let ((window (get-buffer-window buffer)))
-       (cond
-        ((and (dired-preview--window-parameter-p window)
-              (current-buffer))
-         (delete-window (get-buffer-window buffer)))
-        ((dired-preview--window-parameter-p window)
-         (ignore-errors
-           (kill-buffer-if-not-modified buffer)
-           (setq dired-preview--buffers (delq buffer dired-preview--buffers)))))))
-     (dired-preview--get-buffers)))
 
 (defun dired-preview--close-previews ()
   "Kill preview buffers and delete their windows."
