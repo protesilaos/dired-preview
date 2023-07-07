@@ -217,7 +217,10 @@ DIMENSION is either a `:width' or `:height' keyword.  It is
 checked against `split-width-threshold' or
 `split-height-threshold'"
   (pcase dimension
-    (:width fill-column)
+    (:width (if-let ((window-width (floor (window-total-width) 2))
+                     ((> window-width fill-column)))
+                window-width
+              fill-column))
     (:height (floor (window-height) 2))))
 
 (defun dired-preview-display-action-side ()
