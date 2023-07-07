@@ -114,22 +114,39 @@ details."
   "Return non-nil if WINDOW has `dired-preview-window' parameter."
   (window-parameter window 'dired-preview-window))
 
-;; TODO 2023-07-05: We need a garbage collection function so that we
-;; do not accummulate too many buffers that exceed a given threshold.
+;; TODO 2023-07-07: This can become a user option, but let's keep it
+;; simple for now.  We need to be sure this is always doing the right
+;; thing.
+(defvar dired-preview--buffers-threshold (* 1000 1024)
+  "Maximum cumulative buffer size of previews.
+When the accummulated preview buffers exceed this number and
+`dired-preview--kill-buffers' is called, it will kill buffers
+until it drops below this number.")
+
+(defun dired-preview--get-buffer-cummulative-size ()
+  "Return cummulative buffer size of `dired-preview--get-buffers'."
+  (let ((size 0))
+    (mapc
+     (lambda (buffer)
+       (setq size (+ (buffer-size buffer) size)))
+     (dired-preview--get-buffers))
+    size))
+
 (defun dired-preview--kill-buffers ()
-  "Kill preview buffers."
-  (mapc
-   (lambda (buffer)
-     (let ((window (get-buffer-window buffer)))
-       (cond
-        ((and (dired-preview--window-parameter-p window)
-              (current-buffer))
-         (delete-window (get-buffer-window buffer)))
-        ((dired-preview--window-parameter-p window)
-         (ignore-errors
-           (kill-buffer-if-not-modified buffer)
-           (setq dired-preview--buffers (delq buffer dired-preview--buffers)))))))
-     (dired-preview--get-buffers)))
+  "Kill preview buffers up to `dired-preview--buffers-threshold'."
+  (let ((buffers (nreverse (dired-preview--get-buffers))))
+    (catch 'stop
+      (mapc
+       (lambda (buffer)
+         (if (and (>= (dired-preview--get-buffer-cummulative-size)
+                      dired-preview--buffers-threshold))
+             (when (and (buffer-local-value 'delayed-mode-hooks buffer)
+                        (not (eq buffer (current-buffer))))
+               (ignore-errors (kill-buffer-if-not-modified buffer))
+               (setq buffers (delq buffer buffers)))
+           (throw 'stop t)))
+       buffers))
+    (setq dired-preview--buffers (delq nil (nreverse buffers)))))
 
 (defun dired-preview--get-windows ()
   "Return windows that show previews."
