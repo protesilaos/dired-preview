@@ -345,5 +345,14 @@ the preview with `dired-preview-delay' of idleness."
       (dired-preview-enable-preview)
     (dired-preview-disable-preview)))
 
+(defun dired-preview--on ()
+  "Enable `dired-preview-mode' in Dired."
+  (when (eq major-mode 'dired-mode)
+    (dired-preview-mode 1)))
+
+;;;###autoload
+(define-globalized-minor-mode dired-preview-global-mode
+  dired-preview-mode dired-preview--on)
+
 (provide 'dired-preview)
 ;;; dired-preview.el ends here
