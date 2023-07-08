@@ -157,8 +157,7 @@ until it drops below this number.")
   (mapc
    (lambda (window)
      (unless (or (one-window-p)
-                 (eq window (minibuffer-window))
-                 (eq window (selected-window)))
+                 (eq window (minibuffer-window)))
        (delete-window window)))
    (dired-preview--get-windows)))
 
