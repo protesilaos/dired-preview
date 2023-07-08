@@ -113,12 +113,12 @@ details."
 ;; thing.
 (defvar dired-preview--buffers-threshold (* 1000 1024)
   "Maximum cumulative buffer size of previews.
-When the accummulated preview buffers exceed this number and
+When the accumulated preview buffers exceed this number and
 `dired-preview--kill-buffers' is called, it will kill buffers
 until it drops below this number.")
 
-(defun dired-preview--get-buffer-cummulative-size ()
-  "Return cummulative buffer size of `dired-preview--get-buffers'."
+(defun dired-preview--get-buffer-cumulative-size ()
+  "Return cumulative buffer size of `dired-preview--get-buffers'."
   (let ((size 0))
     (mapc
      (lambda (buffer)
@@ -132,7 +132,7 @@ until it drops below this number.")
     (catch 'stop
       (mapc
        (lambda (buffer)
-         (if (and (>= (dired-preview--get-buffer-cummulative-size)
+         (if (and (>= (dired-preview--get-buffer-cumulative-size)
                       dired-preview--buffers-threshold))
              (when (and (buffer-local-value 'delayed-mode-hooks buffer)
                         (not (eq buffer (current-buffer))))
