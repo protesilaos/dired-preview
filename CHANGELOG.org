@@ -14,9 +14,9 @@ the manual: <https://protesilaos.com/emacs/dired-preview>.
 :CUSTOM_ID: h:99cbb3dd-a0f1-4d2b-a945-58531f4ab189
 :END:
 
-The ~dired-preview~ package was in a public testing phase from DATE
-until today.  In the meantime, lots of changes have been made in the
-interest of usability and robustness.
+The ~dired-preview~ package was in a public testing phase from
+2023-06-25 until today.  In the meantime, lots of changes have been
+made in the interest of usability and robustness.
 
 ** Global and buffer-local modes
 :PROPERTIES:
