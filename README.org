@@ -104,6 +104,33 @@ decided to write it my own way: it was easier for me, plus I can
 implement only what I consider necessary without upsetting existing
 users.
 
+** How to tweak the placement of the preview window
+:PROPERTIES:
+:CUSTOM_ID: h:25135eb2-04a9-403e-bc3a-8ee287ac36cf
+:END:
+
+#+vindex: dired-preview-display-action-alist-function
+The user option ~dired-preview-display-action-alist-function~
+speficies a function to handle the display of the preview.  The
+default value will place the preview either to the right or the
+bottom side window, depending on the available width.
+
+Users can specify their own conditions with something like this:
+
+#+begin_src emacs-lisp
+(defun my-dired-preview-to-the-right ()
+  "My preferred `dired-preview-display-action-alist-function'."
+  '((display-buffer-in-side-window)
+    (side . right)
+    (width . 0.3)))
+
+(setq dired-preview-display-action-alist-function #'my-dired-preview-to-the-right)
+#+end_src
+
+Note that the ~display-buffer~ mechanism is inherently complex and
+powerful.  As such, this user option must be treated with care as a
+false value will break things.
+
 * Installation
 :PROPERTIES:
 :CUSTOM_ID: h:30b9c20c-071d-4943-a9a7-e8d7e7ea33e3
