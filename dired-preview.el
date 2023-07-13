@@ -58,6 +58,7 @@
 ;;; Code:
 
 (require 'dired)
+(require 'seq)
 
 (defgroup dired-preview nil
   "Automatically preview file at point in Dired."
