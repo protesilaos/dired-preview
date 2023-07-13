@@ -129,8 +129,8 @@ until it drops below this number.")
     (catch 'stop
       (mapc
        (lambda (buffer)
-         (if (and (>= (dired-preview--get-buffer-cumulative-size)
-                      dired-preview--buffers-threshold))
+         (if (>= (dired-preview--get-buffer-cumulative-size)
+                 dired-preview--buffers-threshold)
              (when (and (buffer-local-value 'delayed-mode-hooks buffer)
                         (not (eq buffer (current-buffer))))
                (ignore-errors (kill-buffer-if-not-modified buffer))
