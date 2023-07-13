@@ -3,6 +3,7 @@
 ;; Copyright (C) 2023  Free Software Foundation, Inc.
 
 ;; Author: Protesilaos Stavrou <info@protesilaos.com>
+;; Maintainer: Protesilaos Stavrou <~protesilaos/general-issues@lists.sr.ht>
 ;; URL: https://git.sr.ht/~protesilaos/dired-preview
 ;; Mailing-List: https://lists.sr.ht/~protesilaos/general-issues
 ;; Version: 0.1.1
