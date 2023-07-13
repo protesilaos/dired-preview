@@ -76,7 +76,7 @@
 (defcustom dired-preview-max-size (expt 2 20)
   "Files larger than this byte limit are not previewed."
   :group 'dired-preview
-  :type 'integer)
+  :type 'natnum)
 
 (defcustom dired-preview-display-action-alist-function
   #'dired-preview-display-action-alist-dwim
@@ -92,7 +92,7 @@ details."
 (defcustom dired-preview-delay 0.7
   "Time in seconds to wait before previewing."
   :group 'dired-preview
-  :type 'float)
+  :type 'number)
 
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
