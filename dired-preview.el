@@ -164,8 +164,8 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--file-displayed-p (file)
   "Return non-nil if FILE is already displayed in a window."
-  (when-let* ((buffer (get-file-buffer file))
-              (window (get-buffer-window buffer)))
+  (when-let ((buffer (get-file-buffer file))
+             (window (get-buffer-window buffer)))
     (window-live-p window)))
 
 (defun dired-preview--set-window-parameters (window value)
@@ -232,9 +232,9 @@ checked against `split-width-threshold' or
 
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
-  (if-let* ((width (window-body-width))
-            ((>= width (window-body-height)))
-            ((>= width split-width-threshold)))
+  (if-let ((width (window-body-width))
+           ((>= width (window-body-height)))
+           ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
     `(:side bottom :dimension window-height :size ,(dired-preview-get-window-size :height))))
 
@@ -301,9 +301,9 @@ With optional NO-DELAY do not start a timer.  Otherwise produce
 the preview with `dired-preview-delay' of idleness."
   (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
   (dired-preview--cancel-timer)
-  (if-let* ((file (dired-file-name-at-point))
-            ((dired-preview--preview-p file))
-            ((memq this-command dired-preview-trigger-commands)))
+  (if-let ((file (dired-file-name-at-point))
+           ((dired-preview--preview-p file))
+           ((memq this-command dired-preview-trigger-commands)))
       (if no-delay
           (dired-preview-display-file file)
         (setq dired-preview--timer
