@@ -317,14 +317,14 @@ the preview with `dired-preview-delay' of idleness."
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
   (unless (eq major-mode 'dired-mode)
-    (error "Can only use `dired-preview' in Dired"))
+    (user-error "Can only use `dired-preview' in Dired"))
   (remove-hook 'post-command-hook #'dired-preview-trigger :local)
   (dired-preview--close-previews))
 
 (defun dired-preview-enable-preview ()
   "Enable Dired preview."
   (unless (eq major-mode 'dired-mode)
-    (error "Can only use `dired-preview' in Dired"))
+    (user-error "Can only use `dired-preview' in Dired"))
   (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
   (dired-preview-trigger :no-delay))
 
