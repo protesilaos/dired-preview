@@ -97,12 +97,7 @@ details."
 
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
-  (seq-filter
-   (lambda (buffer)
-     (when (and (bufferp buffer)
-                (buffer-live-p buffer))
-       buffer))
-   dired-preview--buffers))
+  (seq-filter #'buffer-live-p dired-preview--buffers))
 
 (defun dired-preview--window-parameter-p (window)
   "Return non-nil if WINDOW has `dired-preview-window' parameter."
