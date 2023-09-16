@@ -221,7 +221,7 @@ matters.
 + Author/maintainer :: Protesilaos Stavrou.
 
 + Contributions to code or the manual :: Bruno Boal, Christian Tietze,
-  Karthik Chikmagalur, Stefan Monnier, Philip Kaludercic.
+  Karthik Chikmagalur, Stefan Monnier, Philip Kaludercic, Nofint.
 
 + Ideas and/or user feedback :: Bruno Boal, Ed Hamilton, Karthik
   Chikmagalur, Peter Prevos.
