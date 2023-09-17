@@ -247,10 +247,6 @@ aforementioned user option."
       (side . ,(plist-get properties :side))
       (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
 
-(defvar dired-preview-trigger-commands
-  '(dired-next-line dired-previous-line dired-mark dired-goto-file dired-find-file dired dired-jump)
-  "List of Dired commands that trigger a preview.")
-
 (defvar dired-preview--timer nil
   "Most recent timer object to display a preview.")
 
@@ -302,8 +298,7 @@ the preview with `dired-preview-delay' of idleness."
   (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
   (dired-preview--cancel-timer)
   (if-let ((file (dired-file-name-at-point))
-           ((dired-preview--preview-p file))
-           ((memq this-command dired-preview-trigger-commands)))
+           ((dired-preview--preview-p file)))
       (if no-delay
           (dired-preview-display-file file)
         (setq dired-preview--timer
