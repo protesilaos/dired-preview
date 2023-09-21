@@ -97,6 +97,17 @@ details."
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
+(defvar dired-preview-saved-line nil
+  "Variable to store the saved line number.")
+
+(defun dired-preview-line-changed-p ()
+  "Check if the line number is changed"
+  (if (not (eq dired-preview-saved-line (line-number-at-pos)))
+      (setq dired-preview-saved-line (line-number-at-pos))
+    (setq dired-preview-saved-line (line-number-at-pos))
+    nil))
+
+
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
   (seq-filter #'buffer-live-p dired-preview--buffers))
@@ -265,7 +276,8 @@ aforementioned user option."
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
   (unless (eq major-mode 'dired-mode)
     (dired-preview--close-previews)
-    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
+    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
+    (setq dired-preview-saved-line nil)))
 
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
@@ -298,7 +310,8 @@ the preview with `dired-preview-delay' of idleness."
   (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
   (dired-preview--cancel-timer)
   (if-let ((file (dired-file-name-at-point))
-           ((dired-preview--preview-p file)))
+           ((dired-preview--preview-p file))
+	   ((dired-preview-line-changed-p)))
       (if no-delay
           (dired-preview-display-file file)
         (setq dired-preview--timer
