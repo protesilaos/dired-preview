@@ -331,7 +331,8 @@ the preview with `dired-preview-delay' of idleness."
   (unless (eq major-mode 'dired-mode)
     (user-error "Can only use `dired-preview' in Dired"))
   (remove-hook 'post-command-hook #'dired-preview-trigger :local)
-  (dired-preview--close-previews))
+  (dired-preview--close-previews)
+  (put 'dired-preview-start 'function-executed nil))
 
 (defun dired-preview-enable-preview ()
   "Enable Dired preview."
