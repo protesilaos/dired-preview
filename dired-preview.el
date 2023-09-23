@@ -97,17 +97,6 @@ details."
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
-(defvar dired-preview-saved-line nil
-  "Variable to store the saved line number.")
-
-(defun dired-preview-line-changed-p ()
-  "Check if the line number is changed"
-  (if (not (eq dired-preview-saved-line (line-number-at-pos)))
-      (setq dired-preview-saved-line (line-number-at-pos))
-    (setq dired-preview-saved-line (line-number-at-pos))
-    nil))
-
-
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
   (seq-filter #'buffer-live-p dired-preview--buffers))
@@ -258,6 +247,10 @@ aforementioned user option."
       (side . ,(plist-get properties :side))
       (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
 
+(defvar dired-preview-trigger-commands
+  '(dired-next-line dired-previous-line dired-mark dired-unmark dired-unmark-backward dired-del-marker dired-goto-file dired-find-file)
+  "List of Dired commands that trigger a preview.")
+
 (defvar dired-preview--timer nil
   "Most recent timer object to display a preview.")
 
@@ -277,7 +270,7 @@ aforementioned user option."
   (unless (eq major-mode 'dired-mode)
     (dired-preview--close-previews)
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
-    (setq dired-preview-saved-line nil)))
+    (put 'dired-preview-start 'function-executed nil)))
 
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
@@ -303,6 +296,12 @@ Only do it with the current major mode is Dired."
        (not (dired-preview--file-ignored-p file))
        (not (dired-preview--file-large-p file))))
 
+(defun dired-preview-start (file)
+  "Preview instantly when invoke dired"
+  (unless (get 'dired-preview-start 'function-executed)
+    (put 'dired-preview-start 'function-executed t)
+    (dired-preview-display-file file)))
+
 (defun dired-preview-trigger (&optional no-delay)
   "Trigger display of file at point after `dired-preview-trigger-commands'.
 With optional NO-DELAY do not start a timer.  Otherwise produce
@@ -311,7 +310,7 @@ the preview with `dired-preview-delay' of idleness."
   (dired-preview--cancel-timer)
   (if-let ((file (dired-file-name-at-point))
            ((dired-preview--preview-p file))
-	   ((dired-preview-line-changed-p)))
+           ((memq this-command dired-preview-trigger-commands)))
       (if no-delay
           (dired-preview-display-file file)
         (setq dired-preview--timer
@@ -320,6 +319,11 @@ the preview with `dired-preview-delay' of idleness."
                nil
                #'dired-preview-display-file
                file)))
+    (if (and file (dired-preview--preview-p file))
+	(dired-preview-start file)
+      (if (not (memq this-command dired-preview-trigger-commands))
+	  nil
+	(dired-preview--delete-windows)))
     (dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview-disable-preview ()
