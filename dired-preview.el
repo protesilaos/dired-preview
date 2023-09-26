@@ -248,7 +248,7 @@ aforementioned user option."
       (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
 
 (defvar dired-preview-trigger-commands
-  '(dired-next-line dired-previous-line dired-mark dired-goto-file dired-find-file dired dired-jump)
+  '(dired-next-line dired-previous-line dired-mark dired-unmark dired-unmark-backward dired-del-marker dired-goto-file dired-find-file)
   "List of Dired commands that trigger a preview.")
 
 (defvar dired-preview--timer nil
@@ -269,7 +269,8 @@ aforementioned user option."
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
   (unless (eq major-mode 'dired-mode)
     (dired-preview--close-previews)
-    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)))
+    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
+    (put 'dired-preview-start 'function-executed nil)))
 
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
@@ -295,6 +296,12 @@ Only do it with the current major mode is Dired."
        (not (dired-preview--file-ignored-p file))
        (not (dired-preview--file-large-p file))))
 
+(defun dired-preview-start (file)
+  "Preview instantly when invoke dired"
+  (unless (get 'dired-preview-start 'function-executed)
+    (put 'dired-preview-start 'function-executed t)
+    (dired-preview-display-file file)))
+
 (defun dired-preview-trigger (&optional no-delay)
   "Trigger display of file at point after `dired-preview-trigger-commands'.
 With optional NO-DELAY do not start a timer.  Otherwise produce
@@ -312,6 +319,11 @@ the preview with `dired-preview-delay' of idleness."
                nil
                #'dired-preview-display-file
                file)))
+    (if (and file (dired-preview--preview-p file))
+	(dired-preview-start file)
+      (if (not (memq this-command dired-preview-trigger-commands))
+	  nil
+	(dired-preview--delete-windows)))
     (dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview-disable-preview ()
@@ -319,7 +331,8 @@ the preview with `dired-preview-delay' of idleness."
   (unless (eq major-mode 'dired-mode)
     (user-error "Can only use `dired-preview' in Dired"))
   (remove-hook 'post-command-hook #'dired-preview-trigger :local)
-  (dired-preview--close-previews))
+  (dired-preview--close-previews)
+  (put 'dired-preview-start 'function-executed nil))
 
 (defun dired-preview-enable-preview ()
   "Enable Dired preview."
