@@ -62,6 +62,9 @@
 (eval-when-compile
   (require 'subr-x))
 
+(declare-function hexl-mode "hexl")
+(declare-function hexl-mode-exit "hexl")
+
 (defgroup dired-preview nil
   "Automatically preview file at point in Dired."
   :group 'dired)
@@ -101,11 +104,25 @@ details."
   :group 'dired-preview
   :type 'integer)
 
+(defcustom dired-preview-binary-as-hexl t
+  "Whether non-text (binary) files should be previewed in `hexl-mode'.
+
+Irrespective of this option, you can switch between raw/hexl
+views at any time using `dired-preview-hexl-toggle'."
+  :group 'dired-preview
+  :type 'boolean)
+
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
 (defvar dired-preview--large-files-alist nil
   "Alist mapping previewed large files to buffer names.")
+
+(defvar dired-preview-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c")
+      #'dired-preview-hexl-toggle)
+    map))
 
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
@@ -251,6 +268,16 @@ The size of the leading chunk is specified by
     (overlay-put
      end-ov 'display
      (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
+
+(defun dired-preview-hexl-toggle ()
+  "Toggle preview between text and `hexl-mode'."
+  (interactive)
+  (dolist (win (dired-preview--get-windows))
+    (with-selected-window win
+      (if (eq major-mode 'hexl-mode)
+          (hexl-mode-exit)
+        (hexl-mode))
+      (dired-preview--add-truncation-message))))
 
 (defun dired-preview--find-file-no-select (file)
   "Call `find-file-noselect' on FILE with appropriate settings."
@@ -410,6 +437,7 @@ the preview with `dired-preview-delay' of idleness."
 ;;;###autoload
 (define-minor-mode dired-preview-mode
   "Buffer-local mode to preview file at point in Dired."
+  :keymap dired-preview-mode-map
   :global nil
   (if dired-preview-mode
       (dired-preview-enable-preview)
