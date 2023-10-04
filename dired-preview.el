@@ -59,6 +59,8 @@
 
 (require 'dired)
 (require 'seq)
+(eval-when-compile
+  (require 'subr-x))
 
 (defgroup dired-preview nil
   "Automatically preview file at point in Dired."
@@ -94,8 +96,16 @@ details."
   :group 'dired-preview
   :type 'number)
 
+(defcustom dired-preview-chunk-size 10240
+  "Size in bytes to read from large files."
+  :group 'dired-preview
+  :type 'integer)
+
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
+
+(defvar dired-preview--large-files-alist nil
+  "Alist mapping previewed large files to buffer names.")
 
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
@@ -138,6 +148,15 @@ until it drops below this number.")
            (throw 'stop t)))
        buffers))
     (setq dired-preview--buffers (delq nil (nreverse buffers)))))
+
+(defun dired-preview--kill-large-buffers ()
+  "Kill buffers previewing large files."
+  (mapc (lambda (pair)
+          (let ((buffer (cdr pair)))
+            (and (bufferp buffer)
+                 (kill-buffer buffer))))
+        dired-preview--large-files-alist)
+  (setq dired-preview--large-files-alist nil))
 
 (defun dired-preview--get-windows ()
   "Return windows that show previews."
@@ -186,6 +205,53 @@ See user option `dired-preview-ignored-extensions-regexp'."
     (kill-local-variable 'delayed-mode-hooks)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local))))
 
+(defun dired-preview--dispatch-file (file)
+  "Decide how to preview FILE.
+
+Return the preview buffer."
+  (cond
+   ((dired-preview--file-large-p file)
+    (dired-preview--find-large-file file))
+   (t
+    (dired-preview--find-file-no-select file))))
+
+(defun dired-preview--find-large-file (file)
+  "Read part of FILE with appropriate settings.
+
+The size of the leading chunk is specified by
+`dired-preview-chunk-size'."
+  (let ((inhibit-message t)
+        (enable-dir-local-variables nil)
+        (enable-local-variables :safe)
+        (non-essential t)
+        (delay-mode-hooks t))
+    (if-let* ((buffer (or (get-file-buffer file)
+                       (find-buffer-visiting file)
+                       (alist-get file dired-preview--large-files-alist
+                                  nil nil #'equal))))
+        buffer ; Buffer is already being visited, we can reuse it
+      (with-current-buffer (create-file-buffer file)
+        ;; We create a buffer with a partial preview
+        (buffer-disable-undo)
+        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
+        (when (and (eq buffer-file-coding-system 'no-conversion)
+                   dired-preview-binary-as-hexl)
+          (hexl-mode))
+        (dired-preview--add-truncation-message)
+        (read-only-mode t)
+        ;; Because this buffer is not marked as visiting FILE, we need to keep
+        ;; track of it ourselves.
+        (setf (alist-get file dired-preview--large-files-alist
+                         nil nil 'equal)
+              (current-buffer))))))
+
+(defun dired-preview--add-truncation-message ()
+  "Add a message indicating that the previewed file is truncated."
+  (let ((end-ov (make-overlay (1- (point-max)) (point-max))))
+    (overlay-put
+     end-ov 'display
+     (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
+
 (defun dired-preview--find-file-no-select (file)
   "Call `find-file-noselect' on FILE with appropriate settings."
   ;; NOTE: I learnt about `non-essential' and `delay-mode-hooks' from
@@ -205,7 +271,7 @@ Always return FILE buffer."
   (let ((buffer (find-buffer-visiting file)))
     (if (buffer-live-p buffer)
         buffer
-      (setq buffer (dired-preview--find-file-no-select file)))
+      (setq buffer (dired-preview--dispatch-file file)))
     (with-current-buffer buffer
       (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
     (add-to-list 'dired-preview--buffers buffer)
@@ -263,7 +329,8 @@ aforementioned user option."
   "Kill preview buffers and delete their windows."
   (dired-preview--cancel-timer)
   (dired-preview--delete-windows)
-  (dired-preview--kill-buffers))
+  (dired-preview--kill-buffers)
+  (dired-preview--kill-large-buffers))
 
 (defun dired-preview--close-previews-outside-dired ()
   "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
@@ -293,8 +360,7 @@ Only do it with the current major mode is Dired."
   (and (file-regular-p file)
        (not (file-directory-p file))
        (not (dired-preview--file-displayed-p file))
-       (not (dired-preview--file-ignored-p file))
-       (not (dired-preview--file-large-p file))))
+       (not (dired-preview--file-ignored-p file))))
 
 (defun dired-preview-start (file)
   "Preview instantly when invoke dired"
