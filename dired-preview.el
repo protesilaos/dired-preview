@@ -394,7 +394,7 @@ Only do it with the current major mode is Dired."
        (not (dired-preview--file-ignored-p file))))
 
 (defun dired-preview-start (file)
-  "Preview instantly when invoke dired"
+  "Preview FILE instantly when invoking Dired."
   (unless (get 'dired-preview-start 'function-executed)
     (put 'dired-preview-start 'function-executed t)
     (dired-preview-display-file file)))
