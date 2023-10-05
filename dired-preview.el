@@ -74,9 +74,12 @@
           "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
           "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
           "\\|iso\\|epub\\|pdf\\)")
-  "Regular expression of file type extensions to not preview."
+  "Regular expression of file type extensions to not preview.
+When the value is nil, do not ignore any file: preview
+everything."
   :group 'dired-preview
-  :type 'string)
+  :type '(choice (const :tag "Do not ignore any file (preview everything)" nil)
+                 (string :tag "Ignore files matching regular expression")))
 
 (defcustom dired-preview-max-size (expt 2 20)
   "Files larger than this byte limit are not previewed."
@@ -191,7 +194,8 @@ until it drops below this number.")
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
 See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let ((ext (file-name-extension file)))
+  (when-let (((stringp dired-preview-ignored-extensions-regexp))
+             (ext (file-name-extension file)))
     (string-match-p ext dired-preview-ignored-extensions-regexp)))
 
 (defun dired-preview--file-large-p (file)
