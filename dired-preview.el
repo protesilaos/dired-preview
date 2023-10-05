@@ -216,6 +216,13 @@ Return the preview buffer."
    (t
     (dired-preview--find-file-no-select file))))
 
+(defun dired-preview--add-truncation-message ()
+  "Add a message indicating that the previewed file is truncated."
+  (let ((end-ov (make-overlay (1- (point-max)) (point-max))))
+    (overlay-put
+     end-ov 'display
+     (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
+
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
 
@@ -248,13 +255,6 @@ The size of the leading chunk is specified by
         (setf (alist-get file dired-preview--large-files-alist
                          nil nil 'equal)
               (current-buffer))))))
-
-(defun dired-preview--add-truncation-message ()
-  "Add a message indicating that the previewed file is truncated."
-  (let ((end-ov (make-overlay (1- (point-max)) (point-max))))
-    (overlay-put
-     end-ov 'display
-     (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
 
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
