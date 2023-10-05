@@ -321,9 +321,9 @@ Always return FILE buffer."
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
     (put 'dired-preview-start 'function-executed nil)))
 
+;; TODO 2023-10-05: We may no longer need this function.
 (defun dired-preview--display-buffer (buffer)
-  "Call `display-buffer' for BUFFER.
-Only do it with the current major mode is Dired."
+  "Call `display-buffer' for BUFFER."
   (display-buffer buffer))
 
 (defun dired-preview-display-file (file)
