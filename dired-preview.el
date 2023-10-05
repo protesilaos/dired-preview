@@ -110,12 +110,6 @@ views at any time using `dired-preview-hexl-toggle'."
 (defvar dired-preview--large-files-alist nil
   "Alist mapping previewed large files to buffer names.")
 
-(defvar dired-preview-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") #'dired-preview-hexl-toggle)
-    map)
-  "Key map for `dired-preview-mode'.")
-
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
   (seq-filter #'buffer-live-p dired-preview--buffers))
@@ -391,6 +385,12 @@ the preview with `dired-preview-delay' of idleness."
     (user-error "Can only use `dired-preview' in Dired"))
   (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
   (dired-preview-trigger :no-delay))
+
+(defvar dired-preview-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-c") #'dired-preview-hexl-toggle)
+    map)
+  "Key map for `dired-preview-mode'.")
 
 ;;;###autoload
 (define-minor-mode dired-preview-mode
