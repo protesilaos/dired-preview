@@ -112,8 +112,9 @@ views at any time using `dired-preview-hexl-toggle'."
 
 (defvar dired-preview-mode-map
   (let ((map (make-sparse-keymap)))
-    map))
     (define-key map (kbd "C-c C-c") #'dired-preview-hexl-toggle)
+    map)
+  "Key map for `dired-preview-mode'.")
 
 (defun dired-preview--get-buffers ()
   "Return buffers that show previews."
