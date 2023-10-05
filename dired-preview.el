@@ -63,7 +63,7 @@
   (require 'subr-x))
 
 (declare-function hexl-mode "hexl")
-(declare-function hexl-mode-exit "hexl")
+(declare-function hexl-mode-exit "hexl" (&optional arg))
 
 (defgroup dired-preview nil
   "Automatically preview file at point in Dired."
