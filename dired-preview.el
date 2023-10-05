@@ -62,9 +62,6 @@
 (eval-when-compile
   (require 'subr-x))
 
-(declare-function hexl-mode "hexl")
-(declare-function hexl-mode-exit "hexl" (&optional arg))
-
 (defgroup dired-preview nil
   "Automatically preview file at point in Dired."
   :group 'dired)
@@ -218,6 +215,9 @@ Return the preview buffer."
     (dired-preview--find-large-file file))
    (t
     (dired-preview--find-file-no-select file))))
+
+(declare-function hexl-mode "hexl")
+(declare-function hexl-mode-exit "hexl" (&optional arg))
 
 (defun dired-preview--find-large-file (file)
   "Read part of FILE with appropriate settings.
