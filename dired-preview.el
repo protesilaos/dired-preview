@@ -94,7 +94,7 @@ everything."
 (defcustom dired-preview-chunk-size 10240
   "Size in bytes to read from large files."
   :group 'dired-preview
-  :type 'integer)
+  :type 'natnum)
 
 (defcustom dired-preview-binary-as-hexl t
   "Whether non-text (binary) files should be previewed in `hexl-mode'.
