@@ -109,9 +109,6 @@ users.
 :CUSTOM_ID: h:25135eb2-04a9-403e-bc3a-8ee287ac36cf
 :END:
 
-[ DEPRECATED as part of {{{development-version}}}, though I plan to
-  include documentation herein on how to achieve this at the user level. ]
-
 #+vindex: dired-preview-display-action-alist-function
 The user option ~dired-preview-display-action-alist-function~
 speficies a function to handle the display of the preview.  The

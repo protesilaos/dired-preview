@@ -83,6 +83,17 @@ everything."
   :group 'dired-preview
   :type 'natnum)
 
+(defcustom dired-preview-display-action-alist-function
+  #'dired-preview-display-action-alist-dwim
+  "Function to return the `display-buffer' action for the preview.
+This is the same data that is passed to `display-buffer-alist'.
+Read Info node `(elisp) Displaying Buffers'.  As such, it is
+meant for experienced users.  See the reference function
+`dired-preview-display-action-alist-dwim' for the implementation
+details."
+  :group 'dired-preview
+  :type 'function)
+
 (defcustom dired-preview-delay 0.7
   "Time in seconds to wait before previewing."
   :group 'dired-preview
@@ -295,6 +306,38 @@ Always return FILE buffer."
   "Return buffer to preview FILE in."
   (dired-preview--add-to-previews file))
 
+(defvar dired-preview-buffer-name "*dired-preview*"
+  "Name of preview buffer.")
+
+(defun dired-preview-get-window-size (dimension)
+  "Return window size by checking for DIMENSION.
+DIMENSION is either a `:width' or `:height' keyword.  It is
+checked against `split-width-threshold' or
+`split-height-threshold'"
+  (pcase dimension
+    (:width (if-let ((window-width (floor (window-total-width) 2))
+                     ((> window-width fill-column)))
+                window-width
+              fill-column))
+    (:height (floor (window-height) 2))))
+
+(defun dired-preview-display-action-side ()
+  "Pick a side window that is appropriate for the given frame."
+  (if-let ((width (window-body-width))
+           ((>= width (window-body-height)))
+           ((>= width split-width-threshold)))
+      `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
+    `(:side bottom :dimension window-height :size ,(dired-preview-get-window-size :height))))
+
+(defun dired-preview-display-action-alist-dwim ()
+  "Reference function for `dired-preview-display-action-alist-function'.
+Return a `display-buffer' action alist, as described in the
+aforementioned user option."
+  (let ((properties (dired-preview-display-action-side)))
+    `((display-buffer-in-side-window)
+      (side . ,(plist-get properties :side))
+      (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
+
 (defvar dired-preview-trigger-commands
   '(dired-next-line dired-previous-line dired-mark dired-unmark dired-unmark-backward dired-del-marker dired-goto-file dired-find-file)
   "List of Dired commands that trigger a preview.")
@@ -321,10 +364,13 @@ Always return FILE buffer."
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
     (put 'dired-preview-start 'function-executed nil)))
 
-;; TODO 2023-10-05: We may no longer need this function.
 (defun dired-preview--display-buffer (buffer)
-  "Call `display-buffer' for BUFFER."
-  (display-buffer buffer))
+  "Call `display-buffer' for BUFFER.
+Only do it with the current major mode is Dired."
+  (display-buffer
+   buffer
+   (funcall (or dired-preview-display-action-alist-function
+                #'dired-preview-display-action-alist-dwim))))
 
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
