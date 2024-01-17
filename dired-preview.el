@@ -3,9 +3,8 @@
 ;; Copyright (C) 2023-2024  Free Software Foundation, Inc.
 
 ;; Author: Protesilaos Stavrou <info@protesilaos.com>
-;; Maintainer: Protesilaos Stavrou <~protesilaos/general-issues@lists.sr.ht>
-;; URL: https://git.sr.ht/~protesilaos/dired-preview
-;; Mailing-List: https://lists.sr.ht/~protesilaos/general-issues
+;; Maintainer: Protesilaos Stavrou <info@protesilaos.com>
+;; URL: https://github.com/protesilaos/dired-preview
 ;; Version: 0.1.1
 ;; Package-Requires: ((emacs "27.1"))
 ;; Keywords: files, convenience
