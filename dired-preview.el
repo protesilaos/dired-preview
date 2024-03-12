@@ -67,7 +67,7 @@
 
 (defcustom dired-preview-ignored-extensions-regexp
   (concat "\\."
-          "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a"
+          "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav"
           "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
           "\\|iso\\|epub\\|pdf\\)")
   "Regular expression of file type extensions to not preview.
