@@ -322,7 +322,8 @@ checked against `split-width-threshold' or
 
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
-  (if-let ((width (window-body-width))
+  (if-let (split-width-threshold
+	   (width (window-body-width))
            ((>= width (window-body-height)))
            ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
