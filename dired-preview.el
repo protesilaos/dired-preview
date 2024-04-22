@@ -59,6 +59,7 @@
 (require 'dired)
 (require 'seq)
 (eval-when-compile
+  (require 'cl-lib)
   (require 'subr-x))
 
 (defgroup dired-preview nil
@@ -76,6 +77,11 @@ everything."
   :group 'dired-preview
   :type '(choice (const :tag "Do not ignore any file (preview everything)" nil)
                  (string :tag "Ignore files matching regular expression")))
+
+(defcustom  dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
+  "List of file extensions representing image types."
+  :group 'dired-preview
+  :type '(string :tag "Image files matching regular expression"))
 
 (defcustom dired-preview-max-size (expt 2 20)
   "Files larger than this byte limit are not previewed."
@@ -185,7 +191,7 @@ until it drops below this number.")
   "Return non-nil if FILE extension is among the ignored extensions.
 See user option `dired-preview-ignored-extensions-regexp'."
   (when-let (((stringp dired-preview-ignored-extensions-regexp))
-             (ext (file-name-extension file)))
+             (ext (file-name-extension file :include-dot)))
     (string-match-p ext dired-preview-ignored-extensions-regexp)))
 
 (defun dired-preview--file-large-p (file)
@@ -216,15 +222,43 @@ See user option `dired-preview-ignored-extensions-regexp'."
     (kill-local-variable 'delayed-mode-hooks)
     (remove-hook 'post-command-hook #'dired-preview--run-mode-hooks :local))))
 
-(defun dired-preview--dispatch-file (file)
-  "Decide how to preview FILE.
+;; TODO 2024-04-22: Add PDF type and concomitant method to display its buffer.
+(defun dired-preview--infer-type (file)
+  "Infer what type FILE is.
+Return a cons cell whose `car' is a symbol describing FILE and `cdr' is
+FILE."
+  (let ((ext (file-name-extension file :include-dot))
+        (file (expand-file-name file)))
+    (cond
+     ((and (not (string-empty-p ext))
+           (string-match-p ext dired-preview-ignored-extensions-regexp))
+      (cons 'ignore file))
+     ((dired-preview--file-large-p file)
+      (cons 'large file))
+     ((and (not (string-empty-p ext))
+           (string-match-p ext dired-preview-image-extensions-regexp))
+      (cons 'image file))
+     ((file-directory-p file)
+      (cons 'directory file))
+     ((file-writable-p file)
+      (cons 'text file)))))
 
-Return the preview buffer."
-  (cond
-   ((dired-preview--file-large-p file)
-    (dired-preview--find-large-file file))
-   (t
-    (dired-preview--find-file-no-select file))))
+(cl-defgeneric dired-preview--get-buffer (file)
+  "Get a buffer for FILE.")
+
+;; FIXME 2024-04-22: We have a lot of repetitive code.  Can we expand
+;; a macro inside of a `cl-defmethod' or, alternatively, have a macro
+;; that returns the method with its implementation?
+(cl-defmethod dired-preview--get-buffer ((file (head text)))
+  "Get preview buffer for text FILE type."
+  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+    (let ((file (cdr file))
+          (inhibit-message t)
+          (enable-dir-local-variables nil)
+          (enable-local-variables :safe)
+          (non-essential t)
+          (delay-mode-hooks t))
+      (find-file-noselect file :nowarn))))
 
 (defun dired-preview--add-truncation-message ()
   "Add a message indicating that the previewed file is truncated."
@@ -236,36 +270,6 @@ Return the preview buffer."
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
 
-(defun dired-preview--find-large-file (file)
-  "Read part of FILE with appropriate settings.
-
-The size of the leading chunk is specified by
-`dired-preview-chunk-size'."
-  (let ((inhibit-message t)
-        (enable-dir-local-variables nil)
-        (enable-local-variables :safe)
-        (non-essential t)
-        (delay-mode-hooks t))
-    (if-let* ((buffer (or (get-file-buffer file)
-                       (find-buffer-visiting file)
-                       (alist-get file dired-preview--large-files-alist
-                                  nil nil #'equal))))
-        buffer ; Buffer is already being visited, we can reuse it
-      (with-current-buffer (create-file-buffer file)
-        ;; We create a buffer with a partial preview
-        (buffer-disable-undo)
-        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
-        (when (and (eq buffer-file-coding-system 'no-conversion)
-                   dired-preview-binary-as-hexl)
-          (hexl-mode))
-        (dired-preview--add-truncation-message)
-        (read-only-mode t)
-        ;; Because this buffer is not marked as visiting FILE, we need to keep
-        ;; track of it ourselves.
-        (setf (alist-get file dired-preview--large-files-alist
-                         nil nil 'equal)
-              (current-buffer))))))
-
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
   (interactive)
@@ -276,30 +280,78 @@ The size of the leading chunk is specified by
         (hexl-mode))
       (dired-preview--add-truncation-message))))
 
-(defun dired-preview--find-file-no-select (file)
-  "Call `find-file-noselect' on FILE with appropriate settings."
-  ;; NOTE: I learnt about `non-essential' and `delay-mode-hooks' from
-  ;; Daniel Mendler's `consult' package, which imnplements a preview
-  ;; functionality as well (more sophisticated than mine):
-  ;; <https://github.com/minad/consult>.
-  (let ((inhibit-message t)
-        (enable-dir-local-variables nil)
-        (enable-local-variables :safe)
-        (non-essential t)
-        (delay-mode-hooks t))
-    (find-file-noselect file :nowarn)))
+(cl-defmethod dired-preview--get-buffer ((file (head large)))
+  "Get preview buffer for large FILE.
+The size of the leading chunk is specified by
+`dired-preview-chunk-size'."
+  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+    (let ((file (cdr file))
+          (inhibit-message t)
+          (enable-dir-local-variables nil)
+          (enable-local-variables :safe)
+          (non-essential t)
+          (delay-mode-hooks t))
+      (if-let* ((buffer (or (get-file-buffer file)
+                            (find-buffer-visiting file)
+                            (alist-get file dired-preview--large-files-alist
+                                       nil nil #'equal))))
+          buffer ; Buffer is already being visited, we can reuse it
+        (with-current-buffer (create-file-buffer file)
+          ;; We create a buffer with a partial preview
+          (buffer-disable-undo)
+          (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
+          (when (and (eq buffer-file-coding-system 'no-conversion)
+                     dired-preview-binary-as-hexl)
+            (hexl-mode))
+          (dired-preview--add-truncation-message)
+          (read-only-mode t)
+          ;; Because this buffer is not marked as visiting FILE, we need to keep
+          ;; track of it ourselves.
+          (setf (alist-get file dired-preview--large-files-alist
+                           nil nil 'equal)
+                (current-buffer)))))))
+
+(cl-defmethod dired-preview--get-buffer ((file (head ignore)))
+  "Get preview buffer for ignored FILE."
+    (message "No preview method for `%s'" (cdr file)))
+
+(cl-defmethod dired-preview--get-buffer ((file (head directory)))
+  "Get preview buffer for directory FILE type."
+  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+    (let ((file (cdr file))
+          (inhibit-message t)
+          (enable-dir-local-variables nil)
+          (enable-local-variables :safe)
+          (non-essential t)
+          (delay-mode-hooks t))
+      (dired-noselect file))))
+
+;; FIXME 2024-04-22: Best way to preview images and PDF files?  For now
+;; this is the same as the text file type, though we need to refine
+;; it.
+(cl-defmethod dired-preview--get-buffer ((file (head image)))
+  "Get preview buffer for image FILE type."
+  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+    (let ((file (cdr file))
+          (inhibit-message t)
+          (enable-dir-local-variables nil)
+          (enable-local-variables :safe)
+          (non-essential t)
+          (delay-mode-hooks t))
+      (find-file-noselect file :nowarn))))
 
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
 Always return FILE buffer."
-  (let ((buffer (find-buffer-visiting file)))
-    (if (buffer-live-p buffer)
-        buffer
-      (setq buffer (dired-preview--dispatch-file file)))
-    (with-current-buffer buffer
-      (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
-    (add-to-list 'dired-preview--buffers buffer)
-    buffer))
+  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+    (let ((buffer (find-buffer-visiting file)))
+      (if (buffer-live-p buffer)
+          buffer
+        (setq buffer (dired-preview--get-buffer (dired-preview--infer-type file))))
+      (with-current-buffer buffer
+        (add-hook 'post-command-hook #'dired-preview--run-mode-hooks nil :local))
+      (add-to-list 'dired-preview--buffers buffer)
+      buffer)))
 
 (defun dired-preview--get-preview-buffer (file)
   "Return buffer to preview FILE in."
