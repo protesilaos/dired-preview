@@ -251,7 +251,7 @@ FILE."
 ;; that returns the method with its implementation?
 (cl-defmethod dired-preview--get-buffer ((file (head text)))
   "Get preview buffer for text FILE type."
-  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
     (let ((file (cdr file))
           (inhibit-message t)
           (enable-dir-local-variables nil)
