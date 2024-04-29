@@ -190,7 +190,8 @@ until it drops below this number.")
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
 See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let (((stringp dired-preview-ignored-extensions-regexp))
+  (when-let (((not (file-directory-p file)))
+             ((stringp dired-preview-ignored-extensions-regexp))
              (ext (file-name-extension file :include-dot)))
     (string-match-p ext dired-preview-ignored-extensions-regexp)))
 
@@ -434,8 +435,7 @@ Only do it with the current major mode is Dired."
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
-  (and (file-regular-p file)
-       (not (file-directory-p file))
+  (and (file-readable-p file)
        (not (dired-preview--file-displayed-p file))
        (not (dired-preview--file-ignored-p file))))
 
