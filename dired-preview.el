@@ -190,7 +190,8 @@ until it drops below this number.")
 See user option `dired-preview-ignored-extensions-regexp'."
   (when-let (((not (file-directory-p file)))
              ((stringp dired-preview-ignored-extensions-regexp))
-             (ext (file-name-extension file :include-dot)))
+             (ext (file-name-extension file :include-dot))
+             ((not (string-blank-p ext))))
     (string-match-p ext dired-preview-ignored-extensions-regexp)))
 
 (defun dired-preview--file-large-p (file)
