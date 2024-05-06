@@ -285,7 +285,7 @@ FILE."
   "Get preview buffer for large FILE.
 The size of the leading chunk is specified by
 `dired-preview-chunk-size'."
-  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
     (let ((file (cdr file))
           (inhibit-message t)
           (enable-dir-local-variables nil)
@@ -318,7 +318,7 @@ The size of the leading chunk is specified by
 
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
-  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
     (let ((file (cdr file))
           (inhibit-message t)
           (enable-dir-local-variables nil)
@@ -332,7 +332,7 @@ The size of the leading chunk is specified by
 ;; it.
 (cl-defmethod dired-preview--get-buffer ((file (head image)))
   "Get preview buffer for image FILE type."
-  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
     (let ((file (cdr file))
           (inhibit-message t)
           (enable-dir-local-variables nil)
@@ -344,7 +344,7 @@ The size of the leading chunk is specified by
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
 Always return FILE buffer."
-  (cl-letf (((symbol-function 'recentf-track-closed-file) #'ignore))
+  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
     (let ((buffer (find-buffer-visiting file)))
       (if (buffer-live-p buffer)
           buffer
