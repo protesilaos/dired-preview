@@ -1,11 +1,10 @@
 # dired-preview for Emacs
 
-This is a simple and robust package to automatically preview in a side
-window the file at point in Dired buffers.  Preview windows are closed
-when they are no longer relevant, while preview buffers are killed if
-they have not been used for other purposes beside previewing.  The
-package provides several customisation options to control its
-behaviour.
+This is a simple package to automatically preview in a side window the
+file at point in Dired buffers. Preview windows are closed when they
+are no longer relevant, while preview buffers are killed if they have
+not been used for other purposes beside previewing. The package
+provides several customisation options to control its behaviour.
 
 + Package name (GNU ELPA): `dired-preview`
 + Official manual: <https://protesilaos.com/emacs/dired-preview>
