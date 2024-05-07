@@ -115,6 +115,7 @@ details."
 Irrespective of this option, you can switch between raw/hexl
 views at any time using `dired-preview-hexl-toggle'."
   :group 'dired-preview
+  :package-version '(dired-preview . "0.2.0")
   :type 'boolean)
 
 (defvar dired-preview--buffers nil
