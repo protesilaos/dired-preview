@@ -237,7 +237,7 @@ FILE."
       (cons 'image file))
      ((file-directory-p file)
       (cons 'directory file))
-     ((file-writable-p file)
+     (t
       (cons 'text file)))))
 
 (cl-defgeneric dired-preview--get-buffer (file)
