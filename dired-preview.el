@@ -393,7 +393,7 @@ aforementioned user option."
   (dired-preview--kill-large-buffers))
 
 (defun dired-preview--close-previews-outside-dired ()
-  "Call `dired-preview--close-previews' if BUFFER is not in Dired mode."
+  "Call `dired-preview--close-previews' if the current buffer is not in Dired mode."
   (unless (eq major-mode 'dired-mode)
     (dired-preview--close-previews)
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
