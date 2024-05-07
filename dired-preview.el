@@ -417,7 +417,8 @@ Only do it with the current major mode is Dired."
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
-  (and (file-regular-p file)
+  (and file
+       (file-regular-p file)
        (file-readable-p file)
        (not (dired-preview--file-displayed-p file))
        (not (dired-preview--file-ignored-p file))))
