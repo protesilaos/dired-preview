@@ -9,7 +9,7 @@ project's main git repository: <https://git.sr.ht/~protesilaos/dired-preview>.
 The newest release is at the top.  For further details, please consult
 the manual: <https://protesilaos.com/emacs/dired-preview>.
 
-* 0.1.0
+* 0.1.0 on 2023-07-08
 :PROPERTIES:
 :CUSTOM_ID: h:99cbb3dd-a0f1-4d2b-a945-58531f4ab189
 :END:
