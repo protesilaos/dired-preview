@@ -374,7 +374,16 @@ aforementioned user option."
       (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
 
 (defvar dired-preview-trigger-commands
-  '(dired-next-line dired-previous-line dired-mark dired-unmark dired-unmark-backward dired-del-marker dired-goto-file dired-find-file)
+  '( dired-next-line
+     dired-previous-line
+     dired-mark
+     dired-unmark
+     dired-unmark-backward
+     dired-del-marker
+     dired-goto-file
+     dired-find-file
+     scroll-up-command
+     scroll-down-command)
   "List of Dired commands that trigger a preview.")
 
 (defvar dired-preview--timer nil
