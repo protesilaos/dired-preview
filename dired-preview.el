@@ -109,15 +109,6 @@ details."
   :group 'dired-preview
   :type 'natnum)
 
-(defcustom dired-preview-binary-as-hexl t
-  "Whether non-text (binary) files should be previewed in `hexl-mode'.
-
-Irrespective of this option, you can switch between raw/hexl
-views at any time using `dired-preview-hexl-toggle'."
-  :group 'dired-preview
-  :package-version '(dired-preview . "0.2.0")
-  :type 'boolean)
-
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
@@ -295,8 +286,7 @@ The size of the leading chunk is specified by
           ;; We create a buffer with a partial preview
           (buffer-disable-undo)
           (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
-          (when (and (eq buffer-file-coding-system 'no-conversion)
-                     dired-preview-binary-as-hexl)
+          (when (eq buffer-file-coding-system 'no-conversion)
             (hexl-mode))
           (dired-preview--add-truncation-message)
           (read-only-mode t)

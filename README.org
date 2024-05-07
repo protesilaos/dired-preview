@@ -95,6 +95,10 @@ PDFs, and EPUBs.
 [ In the near future, we may find ways to quickly preview any file
   type without affecting the performance of Emacs. ]
 
+Binary files are previewed in ~hexl-mode~ mode. This is more useful
+than the raw, unreadable output. The user can disable this mode by
+typing =C-c C-c=.
+
 I took inspiration for ~dired-preview~ from the now unmaintained
 ~peep-dired~ package by Adam Sokolnicki: <https://github.com/asok/peep-dired>.
 My original plan was to volunteer to maintain ~peep-dired~ but I
