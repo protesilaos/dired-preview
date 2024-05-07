@@ -358,7 +358,7 @@ checked against `split-width-threshold' or
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
   (if-let (split-width-threshold
-	   (width (window-body-width))
+       (width (window-body-width))
            ((>= width (window-body-height)))
            ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
@@ -446,10 +446,10 @@ the preview with `dired-preview-delay' of idleness."
                #'dired-preview-display-file
                file)))
     (if (and file (dired-preview--preview-p file))
-	(dired-preview-start file)
+        (dired-preview-start file)
       (if (not (memq this-command dired-preview-trigger-commands))
-	  nil
-	(dired-preview--delete-windows)))
+          nil
+        (dired-preview--delete-windows)))
     (dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview-disable-preview ()
