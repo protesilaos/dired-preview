@@ -221,7 +221,8 @@ FILE."
      ((and (not (string-empty-p ext))
            (string-match-p ext dired-preview-ignored-extensions-regexp))
       (cons 'ignore file))
-     ((dired-preview--file-large-p file)
+     ((or (dired-preview--file-large-p file)
+          (not (file-writable-p file))) ; FIXME 2024-05-07: We should probably decouple those
       (cons 'large file))
      ((and (not (string-empty-p ext))
            (string-match-p ext dired-preview-image-extensions-regexp))
