@@ -440,11 +440,7 @@ the preview with `dired-preview-delay' of idleness."
       (if no-delay
           (dired-preview-display-file file)
         (setq dired-preview--timer
-              (run-with-idle-timer
-               dired-preview-delay
-               nil
-               #'dired-preview-display-file
-               file)))
+              (run-with-idle-timer dired-preview-delay nil #'dired-preview-display-file file)))
     (if (and file (dired-preview--preview-p file))
         (dired-preview-start file)
       (if (not (memq this-command dired-preview-trigger-commands))
