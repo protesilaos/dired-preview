@@ -12,5 +12,6 @@ behaviour.
 + Git repositories:
   + GitHub: <https://github.com/protesilaos/dired-preview>
   + GitLab: <https://gitlab.com/protesilaos/dired-preview>
-+ Backronym: Directories Invariably Render Everything Decently; PDFs
-  Require Extra Viewing Instructions for Emacs to Work.
++ Backronym: Directories Invariably Render Everything Decently ...
+  preview; dired ... PDFs Require Extra Viewing Instructions for Emacs
+  to Work.
