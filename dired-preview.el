@@ -298,7 +298,7 @@ The size of the leading chunk is specified by
 
 (cl-defmethod dired-preview--get-buffer ((file (head ignore)))
   "Get preview buffer for ignored FILE."
-    (message "No preview method for `%s'" (cdr file)))
+  (message "No preview method for `%s'" (cdr file)))
 
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
@@ -358,7 +358,7 @@ checked against `split-width-threshold' or
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
   (if-let (split-width-threshold
-       (width (window-body-width))
+           (width (window-body-width))
            ((>= width (window-body-height)))
            ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
