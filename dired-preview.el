@@ -219,6 +219,7 @@ FILE."
         (file (expand-file-name file)))
     (cond
      ((and (not (string-empty-p ext))
+           dired-preview-ignored-extensions-regexp
            (string-match-p ext dired-preview-ignored-extensions-regexp))
       (cons 'ignore file))
      ((dired-preview--file-large-p file)
