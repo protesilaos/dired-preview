@@ -40,9 +40,11 @@
 ;; Previews are shown subject to a small delay, per ther user option
 ;; `dired-preview-delay'.
 ;;
-;; Files matching the `dired-preview-ignored-extensions-regexp' are not
-;; previewed.  The default value of that user option includes multimedia,
-;; PDFs, and EPUBs.
+;; Files matching the `dired-preview-ignored-extensions-regexp' are
+;; not previewed, though a preview window is still displayed if the
+;; user option `dired-preview-ignored-show-ignored-placeholders' is
+;; non-nil.  This is to avoid windows jumping in and out of focus as
+;; the user moves between files.
 ;;
 ;; [ In the future, we may find ways to quickly preview any file type
 ;;   without affecting the performance of Emacs.]
@@ -73,14 +75,22 @@
           "\\|iso\\|epub\\|pdf\\)")
   "Regular expression of file type extensions to not preview.
 When the value is nil, do not ignore any file: preview
-everything."
+everything.
+
+A placeholder window will be displayed even for files that are ignored,
+in order to avoid windows jumping in and out of focus.  This behaviour
+is controlled by the `dired-preview-ignored-show-ignored-placeholders'
+user option."
   :group 'dired-preview
   :type '(choice (const :tag "Do not ignore any file (preview everything)" nil)
                  (string :tag "Ignore files matching regular expression")))
 
 (defcustom dired-preview-ignored-show-ignored-placeholders t
-  "When non-nil, show a placeholder preview buffer for ignored extensions."
+  "When non-nil, show a placeholder preview buffer for ignored files.
+Ignored files are controlled by the `dired-preview-ignored-extensions-regexp'
+user option."
   :type 'boolean
+  :package-version '(dired-preview . "0.3.0")
   :group 'dired-preview)
 
 (defcustom  dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
