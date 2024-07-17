@@ -78,6 +78,11 @@ everything."
   :type '(choice (const :tag "Do not ignore any file (preview everything)" nil)
                  (string :tag "Ignore files matching regular expression")))
 
+(defcustom dired-preview-ignored-show-ignored-placeholders t
+  "When non-nil, show a placeholder preview buffer for ignored extensions."
+  :type 'boolean
+  :group 'dired-preview)
+
 (defcustom  dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
   "List of file extensions representing image types."
   :group 'dired-preview
@@ -163,6 +168,17 @@ until it drops below this number.")
                  (kill-buffer buffer))))
         dired-preview--large-files-alist)
   (setq dired-preview--large-files-alist nil))
+
+(defun dired-preview--kill-placeholder-buffers ()
+  "Kill all placeholder preview buffers."
+  (setq dired-preview--buffers
+        (seq-remove (lambda (buffer)
+                      (with-current-buffer buffer
+                        (when (and (boundp 'dired-preview--placeholder-buffer-p)
+                                   dired-preview--placeholder-buffer-p)
+                          (ignore-errors (kill-buffer buffer))
+                          t)))
+                    (dired-preview--get-buffers))))
 
 (defun dired-preview--get-windows ()
   "Return windows that show previews."
@@ -298,8 +314,18 @@ The size of the leading chunk is specified by
                 (current-buffer)))))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head ignore)))
-  "Get preview buffer for ignored FILE."
-  (message "No preview method for `%s'" (cdr file)))
+  "Get preview placeholder buffer for an ignored FILE."
+  (let* ((file (cdr file))
+         (buffer-name (format "%s (no preview)"
+                              (file-name-nondirectory file))))
+    (or (get-buffer buffer-name)
+        (with-current-buffer (get-buffer-create buffer-name)
+          (set-visited-file-name file t)
+          (rename-buffer buffer-name)
+          (set-buffer-modified-p nil)
+          (setq-local dired-preview--placeholder-buffer-p t)
+          (setq buffer-read-only t)
+          (current-buffer)))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
@@ -400,7 +426,8 @@ aforementioned user option."
   (dired-preview--cancel-timer)
   (dired-preview--delete-windows)
   (dired-preview--kill-buffers)
-  (dired-preview--kill-large-buffers))
+  (dired-preview--kill-large-buffers)
+  (dired-preview--kill-placeholder-buffers))
 
 (defun dired-preview--close-previews-outside-dired ()
   "Call `dired-preview--close-previews' if the current buffer is not in Dired mode."
@@ -431,7 +458,8 @@ Only do it with the current major mode is Dired."
        (or (file-regular-p file) (file-directory-p file))
        (file-readable-p file)
        (not (dired-preview--file-displayed-p file))
-       (not (dired-preview--file-ignored-p file))))
+       (or dired-preview-ignored-show-ignored-placeholders
+           (not (dired-preview--file-ignored-p file)))))
 
 (defun dired-preview-start (file)
   "Preview FILE instantly when invoking Dired."
