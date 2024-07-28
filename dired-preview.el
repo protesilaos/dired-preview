@@ -419,6 +419,7 @@ aforementioned user option."
 (defvar dired-preview-trigger-commands
   '( dired-next-line
      dired-previous-line
+     dired-flag-file-deletion
      dired-mark
      dired-unmark
      dired-unmark-backward
