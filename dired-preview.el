@@ -288,6 +288,17 @@ FILE."
      (with-selected-window win
        ,@body)))
 
+(defun dired-preview-visit ()
+  "Visit the currently previewed buffer.
+This means that the buffer is no longer among the previews."
+  (interactive)
+  (let (file buffer)
+    (dired-preview-with-window
+     (setq file buffer-file-name)
+     (dired-preview--close-previews-outside-dired)
+     (setq buffer (find-file-noselect file)))
+    (pop-to-buffer buffer)))
+
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
 
@@ -523,6 +534,7 @@ the preview with `dired-preview-delay' of idleness."
 (defvar dired-preview-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-c") #'dired-preview-hexl-toggle)
+    (define-key map (kbd "C-c C-o") #'dired-preview-visit)
     map)
   "Key map for `dired-preview-mode'.")
 
