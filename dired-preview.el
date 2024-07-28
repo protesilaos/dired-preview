@@ -284,6 +284,12 @@ FILE."
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
 
+(defmacro dired-preview-with-window (&rest body)
+  "Evaluate BODY with the Dired preview window as selected."
+  `(dolist (win (dired-preview--get-windows))
+     (with-selected-window win
+       ,@body)))
+
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
   (interactive)
