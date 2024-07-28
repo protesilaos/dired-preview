@@ -134,10 +134,6 @@ details."
   "Return buffers that show previews."
   (seq-filter #'buffer-live-p dired-preview--buffers))
 
-(defun dired-preview--window-parameter-p (window)
-  "Return non-nil if WINDOW has `dired-preview-window' parameter."
-  (window-parameter window 'dired-preview-window))
-
 ;; TODO 2023-07-07: This can become a user option, but let's keep it
 ;; simple for now.  We need to be sure this is always doing the right
 ;; thing.
@@ -189,6 +185,10 @@ until it drops below this number.")
                           (ignore-errors (kill-buffer buffer))
                           t)))
                     (dired-preview--get-buffers))))
+
+(defun dired-preview--window-parameter-p (window)
+  "Return non-nil if WINDOW has `dired-preview-window' parameter."
+  (window-parameter window 'dired-preview-window))
 
 (defun dired-preview--get-windows ()
   "Return windows that show previews."
