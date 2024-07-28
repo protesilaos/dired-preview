@@ -281,15 +281,15 @@ FILE."
      end-ov 'display
      (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
 
-(declare-function hexl-mode "hexl")
-(declare-function hexl-mode-exit "hexl" (&optional arg))
-
 ;;;###autoload
 (defmacro dired-preview-with-window (&rest body)
   "Evaluate BODY with the Dired preview window as selected."
   `(dolist (win (dired-preview--get-windows))
      (with-selected-window win
        ,@body)))
+
+(declare-function hexl-mode "hexl")
+(declare-function hexl-mode-exit "hexl" (&optional arg))
 
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
