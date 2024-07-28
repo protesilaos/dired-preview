@@ -294,12 +294,11 @@ FILE."
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
   (interactive)
-  (dolist (win (dired-preview--get-windows))
-    (with-selected-window win
-      (if (eq major-mode 'hexl-mode)
-          (hexl-mode-exit)
-        (hexl-mode))
-      (dired-preview--add-truncation-message))))
+  (dired-preview-with-window
+   (if (eq major-mode 'hexl-mode)
+       (hexl-mode-exit)
+     (hexl-mode)
+     (dired-preview--add-truncation-message))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head large)))
   "Get preview buffer for large FILE.
