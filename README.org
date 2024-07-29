@@ -213,7 +213,7 @@ Remember to read the doc string of each of these variables or functions.
                 "rar\\|"
                 "zip\\|"
                 "iso\\|"
-                "epub\\|"
+                "epub"
                 "\\)"))
 
 ;; Enable `dired-preview-mode' in a given Dired buffer or do it
