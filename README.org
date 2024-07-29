@@ -110,6 +110,44 @@ decided to write it my own way: it was easier for me, plus I can
 implement only what I consider necessary without upsetting existing
 users.
 
+** The commands available in the preview window
+:PROPERTIES:
+:CUSTOM_ID: h:b63d9f69-d595-415b-b7c8-b24697ea27ce
+:END:
+
+[ Most of the commands or variables mentioned here are part of {{{development-version}}}. ]
+
+The ~dired-preview-mode~ and its global variant activate the ~dired-preview-mode-map~.
+This key map binds the following commands:
+
+#+findex: dired-preview-find-file
+- ~dired-preview-find-file~ :: Visit the currently previewed buffer
+  with ~find-file~. This means that the buffer is no longer among the
+  previews.
+
+#+findex: dired-preview-open-dwim
+#+vindex: dired-preview-media-extensions-regexp
+#+vindex: dired-preview-image-extensions-regexp
+- ~dired-preview-open-dwim~ ::  Do-What-I-Mean open the currently
+  previewed file. This means that the buffer is no longer among the
+  previews. If the file name matches
+  ~dired-preview-media-extensions-regexp~,
+  ~dired-preview-ignored-extensions-regexp~, or
+  ~dired-preview-image-extensions-regexp~, then open it externally.
+  Otherwise, visit the file in an Emacs buffer.
+
+#+findex: dired-preview-page-up
+- ~dired-preview-page-up~ :: Perform a "page up" motion in the preview
+  window.
+
+#+findex: dired-preview-page-down
+- ~dired-preview-page-down~ :: Perform a "page down" motion in the
+  preview window.
+
+#+findex: dired-preview-hexl-toggle
+- ~dired-preview-hexl-toggle~ ::   Toggle preview between text and
+  ~hexl-mode~.
+
 ** How to tweak the placement of the preview window
 :PROPERTIES:
 :CUSTOM_ID: h:25135eb2-04a9-403e-bc3a-8ee287ac36cf
@@ -239,8 +277,9 @@ In this section we include sample code to help users further configure
 #+findex: dired-preview-with-window
 The Lisp macro ~dired-preview-with-window~ can be used in custom
 functions to evaluate its =BODY= with the Dired Preview window as the
-selected one. Use this to perform some action on the preview window's
-buffer.
+selected one. It is what commands provided by Dired Preview also use
+([[#h:b63d9f69-d595-415b-b7c8-b24697ea27ce][The commands available in the preview window]]). Use this to perform
+some action in the preview window's buffer.
 
 [[#h:1765efb1-f9fe-4379-8ef3-668e573e299b][Combine ~dired-preview~ with ~ready-player~]]
 
