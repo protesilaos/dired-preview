@@ -360,6 +360,24 @@ Also see `dired-preview-find-file'."
     (when buffer
       (pop-to-buffer buffer))))
 
+;; NOTE 2024-07-29: "Scroll up/down" confuses me in this context
+;; because the motion is in the opposite direction.  So "page up/down"
+;; is fine, based on what the keys of the same name do.
+(defun dired-preview-page-down ()
+  "Move a page down in the preview window.
+This technically runs `scroll-up-command'."
+  (interactive)
+  (dired-preview-with-window
+    (call-interactively 'scroll-up-command)))
+
+;; Same as above for the terminology.
+(defun dired-preview-page-up ()
+  "Move a page up in the preview window.
+This technically runs `scroll-down-command'."
+  (interactive)
+  (dired-preview-with-window
+    (call-interactively 'scroll-down-command)))
+
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
 
@@ -597,6 +615,8 @@ the preview with `dired-preview-delay' of idleness."
     (define-key map (kbd "C-c C-c") #'dired-preview-hexl-toggle)
     (define-key map (kbd "C-c C-f") #'dired-preview-find-file)
     (define-key map (kbd "C-c C-o") #'dired-preview-open-dwim)
+    (define-key map (kbd "C-c C-u") #'dired-preview-page-up)
+    (define-key map (kbd "C-c C-d") #'dired-preview-page-down)
     map)
   "Key map for `dired-preview-mode'.")
 
