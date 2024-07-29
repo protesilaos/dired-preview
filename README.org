@@ -264,14 +264,28 @@ buffer ([[#h:f5a5f8ed-4b03-4afc-96e2-83904be19739][The ~dired-preview-with-windo
 (defun prot/ready-player-dired-preview-play-toggle ()
   "Call `ready-player-toggle-play-stop' on the currently previewed media file."
   (interactive)
-  (if-let ((file (dired-file-name-at-point))
-           (media (concat "\\." (regexp-opt ready-player-supported-media t) "\\'"))
-           (_ (string-match-p media file)))
-      (dired-preview-with-window
-       (call-interactively #'ready-player-toggle-play-stop))
-    (user-error "Cannot do something useful with `ready-player' here")))
+  (dired-preview-with-window
+   (if-let ((file buffer-file-name)
+            (media (concat "\\." (regexp-opt ready-player-supported-media t) "\\'"))
+            (_ (string-match-p media file)))
+       (call-interactively #'ready-player-toggle-play-stop)
+     (user-error "Cannot do something useful with `ready-player' here"))))
 
 (define-key dired-preview-mode-map (kbd "C-c C-p") #'prot/ready-player-dired-preview-play-toggle)
+#+end_src
+
+Same idea, but open the file externally no matter what:
+
+#+begin_src emacs-lisp
+(defun prot/ready-player-dired-preview-open-externally ()
+  "Call `ready-player-open-externally' on the currently previewed media file."
+  (interactive)
+  (dired-preview-with-window
+   (if-let ((file buffer-file-name)
+            (media (concat "\\." (regexp-opt ready-player-supported-media t) "\\'"))
+            (_ (string-match-p media file)))
+       (call-interactively #'ready-player-open-externally)
+     (user-error "Cannot do something useful with `ready-player' here"))))
 #+end_src
 
 * Acknowledgements
