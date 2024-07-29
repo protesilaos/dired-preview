@@ -284,6 +284,7 @@ FILE."
 ;;;###autoload
 (defmacro dired-preview-with-window (&rest body)
   "Evaluate BODY with the Dired preview window as selected."
+  (declare (indent 0))
   `(dolist (win (dired-preview--get-windows))
      (with-selected-window win
        ,@body)))
@@ -296,9 +297,9 @@ Also see `dired-preview-open-dwim'."
   (interactive)
   (let (file buffer)
     (dired-preview-with-window
-     (setq file buffer-file-name)
-     (dired-preview--close-previews-outside-dired)
-     (setq buffer (find-file-noselect file)))
+      (setq file buffer-file-name)
+      (dired-preview--close-previews-outside-dired)
+      (setq buffer (find-file-noselect file)))
     (pop-to-buffer buffer)))
 
 (defvar dired-preview-media-extensions-regexp
@@ -347,15 +348,15 @@ Also see `dired-preview-find-file'."
   (interactive)
   (let (buffer)
     (dired-preview-with-window
-     (when-let ((file buffer-file-name))
-       (cond
-        ((or (string-match-p dired-preview-media-extensions-regexp file)
-             (string-match-p dired-preview-ignored-extensions-regexp file)
-             (string-match-p dired-preview-image-extensions-regexp file))
-         (dired-preview--open-externally file))
-        (t
-         (dired-preview--close-previews-outside-dired)
-         (setq buffer (find-file-noselect file))))))
+      (when-let ((file buffer-file-name))
+        (cond
+         ((or (string-match-p dired-preview-media-extensions-regexp file)
+              (string-match-p dired-preview-ignored-extensions-regexp file)
+              (string-match-p dired-preview-image-extensions-regexp file))
+          (dired-preview--open-externally file))
+         (t
+          (dired-preview--close-previews-outside-dired)
+          (setq buffer (find-file-noselect file))))))
     (when buffer
       (pop-to-buffer buffer))))
 
@@ -366,10 +367,10 @@ Also see `dired-preview-find-file'."
   "Toggle preview between text and `hexl-mode'."
   (interactive)
   (dired-preview-with-window
-   (if (eq major-mode 'hexl-mode)
-       (hexl-mode-exit)
-     (hexl-mode)
-     (dired-preview--add-truncation-message))))
+    (if (eq major-mode 'hexl-mode)
+        (hexl-mode-exit)
+      (hexl-mode)
+      (dired-preview--add-truncation-message))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head large)))
   "Get preview buffer for large FILE.
