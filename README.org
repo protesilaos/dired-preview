@@ -153,8 +153,8 @@ This key map binds the following commands:
 :CUSTOM_ID: h:25135eb2-04a9-403e-bc3a-8ee287ac36cf
 :END:
 
-#+vindex: dired-preview-display-action-alist-function
-The user option ~dired-preview-display-action-alist-function~
+#+vindex: dired-preview-display-action-alist
+The user option ~dired-preview-display-action-alist~
 speficies a function to handle the display of the preview.  The
 default value will place the preview either to the right or the
 bottom side window, depending on the available width.
@@ -168,7 +168,7 @@ Users can specify their own conditions with something like this:
     (side . right)
     (width . 0.3)))
 
-(setq dired-preview-display-action-alist-function #'my-dired-preview-to-the-right)
+(setq dired-preview-display-action-alist #'my-dired-preview-to-the-right)
 #+end_src
 
 Note that the ~display-buffer~ mechanism is inherently complex and

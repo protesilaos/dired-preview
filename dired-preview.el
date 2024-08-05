@@ -103,14 +103,28 @@ user option."
   :group 'dired-preview
   :type 'natnum)
 
-(defcustom dired-preview-display-action-alist-function
+(define-obsolete-variable-alias
+  'dired-preview-display-action-alist-function
+  'dired-preview-display-action-alist
+  "0.3.0")
+
+(defcustom dired-preview-display-action-alist
   #'dired-preview-display-action-alist-dwim
-  "Function to return the `display-buffer' action for the preview.
+  "The `display-buffer' action alist for the preview window.
 This is the same data that is passed to `display-buffer-alist'.
 Read Info node `(elisp) Displaying Buffers'.  As such, it is
-meant for experienced users.  See the reference function
-`dired-preview-display-action-alist-dwim' for the implementation
-details."
+meant for experienced users.
+
+Example of a valid value:
+
+    \\='((display-buffer-in-side-window)
+      (side . bottom)
+      (window-height . 0.2)
+      (preserve-size . (t . t)))
+
+The value may also be a function, which returns a `display-buffer'
+action alist.  See `dired-preview-display-action-alist-dwim' for the
+implementation details."
   :group 'dired-preview
   :type 'function)
 
@@ -498,7 +512,7 @@ checked against `split-width-threshold' or
     `(:side bottom :dimension window-height :size ,(dired-preview-get-window-size :height))))
 
 (defun dired-preview-display-action-alist-dwim ()
-  "Reference function for `dired-preview-display-action-alist-function'.
+  "Reference function for `dired-preview-display-action-alist'.
 Return a `display-buffer' action alist, as described in the
 aforementioned user option."
   (let ((properties (dired-preview-display-action-side)))
@@ -546,10 +560,13 @@ aforementioned user option."
 (defun dired-preview--display-buffer (buffer)
   "Call `display-buffer' for BUFFER.
 Only do it with the current major mode is Dired."
-  (display-buffer
-   buffer
-   (funcall (or dired-preview-display-action-alist-function
-                #'dired-preview-display-action-alist-dwim))))
+  (let ((action-alist (cond
+                       ((functionp dired-preview-display-action-alist)
+                        (funcall dired-preview-display-action-alist))
+                       (dired-preview-display-action-alist)
+                       (t
+                        (dired-preview-display-action-alist-dwim)))))
+    (display-buffer buffer action-alist)))
 
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
