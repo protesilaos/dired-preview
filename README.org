@@ -216,7 +216,7 @@ mkdir manual-packages
 cd manual-packages
 
 # Clone this repo, naming it "dired-preview"
-git clone https://git.sr.ht/~protesilaos/dired-preview dired-preview
+git clone https://github.com/protesilaos/dired-preview dired-preview
 #+end_src
 
 Finally, in your =init.el= (or equivalent) evaluate this:
