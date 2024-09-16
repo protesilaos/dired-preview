@@ -1,7 +1,8 @@
-#+TITLE: Change log of dired-preview.el
-#+AUTHOR: Protesilaos Stavrou
-#+EMAIL: info@protesilaos.com
-#+OPTIONS: ':nil toc:nil num:nil author:nil email:nil
+#+title: Change log of dired-preview.el
+#+author: Protesilaos Stavrou
+#+email: info@protesilaos.com
+#+options: ':t toc:nil author:t email:t num:t
+#+startup: content
 
 This document contains the release notes for each tagged commit on the
 project's main git repository: <https://github.com/protesilaos/dired-preview>.
@@ -9,7 +10,155 @@ project's main git repository: <https://github.com/protesilaos/dired-preview>.
 The newest release is at the top.  For further details, please consult
 the manual: <https://protesilaos.com/emacs/dired-preview>.
 
-* 0.2.0 on 2024-05-07
+#+toc: headlines 1 insert TOC here, with one headline level
+
+* Version 0.3.0 on 2024-09-16
+:PROPERTIES:
+:CUSTOM_ID: h:d9780c65-4e70-4188-ae17-abdef97f7ea9
+:END:
+
+This version brings some nice new features and makes small refinements
+to the code base.
+
+** Run commands in the preview window
+:PROPERTIES:
+:CUSTOM_ID: h:4d4e2b08-df93-4738-936b-70de1a056def
+:END:
+
+The ~dired-preview-mode-map~ is active when ~dired-preview-mode~ is
+enabled. Here are all the keys and corresponding commands it provides
+right now:
+
+| Key binding | Command                   |
+|-------------+---------------------------|
+| C-c C-c     | dired-preview-hexl-toggle |
+| C-c C-d     | dired-preview-page-down   |
+| C-c C-f     | dired-preview-find-file   |
+| C-c C-o     | dired-preview-open-dwim   |
+| C-c C-u     | dired-preview-page-up     |
+
+With the exception of ~dired-preview-hexl-toggle~, these are all new
+commands.
+
+My most used command among those is ~dired-preview-open-dwim~, which
+has a Do-What-I-Mean behaviour: If the file name matches
+~dired-preview-media-extensions-regexp~,
+~dired-preview-ignored-extensions-regexp~, or
+~dired-preview-image-extensions-regexp~, then it opens it externally.
+Otherwise, it visits the file in an Emacs buffer. Note that here we
+include the ~dired-preview-image-extensions-regexp~ because while
+Emacs can visit those in a buffer, it does not offer as much
+functionality as other apps that specialise in handling image files.
+
+[ Emacs uses the system default for those files when opening them externally. ]
+
+** Advanced users can rely on the ~dired-preview-with-window~ macro
+:PROPERTIES:
+:CUSTOM_ID: h:90b9c693-c217-4760-a102-a7e04308bfd9
+:END:
+
+Use this in your custom functions to run some code with the preview
+window as the selected window. For example, here is a simple one from
+our code base:
+
+#+begin_src emacs-lisp
+(defun dired-preview-page-down ()
+  "Move a page down in the preview window.
+This technically runs `scroll-up-command'."
+  (interactive)
+  (dired-preview-with-window
+    (call-interactively 'scroll-up-command)))
+#+end_src
+
+Remember to add them to the ~dired-preview-mode-map~.
+
+** Placeholder window prevents preview jumpiness
+:PROPERTIES:
+:CUSTOM_ID: h:8c0034c1-9770-456f-b8db-40fe1db7754f
+:END:
+
+Wtih ~dired-preview-ignored-extensions-regexp~ we can exclude certain
+files from being previewed. This is useful because, for example, Emacs
+cannot display those files or do something useful with their contents,
+or we just want to hide them (e.g. to omit GPG-encrypted files from
+the preview).
+
+In the past, ~dired-preview-mode~ would pop up a preview window for a
+file that could be previewed and would then hide that window for
+anything matching ~dired-preview-ignored-extensions-regexp~. As a
+result, windows would jump in and out of the frame layout. This could
+be disorienting.
+
+We now provide the user option ~dired-preview-ignored-show-ignored-placeholders~
+which shows a placeholder window when trying to preview an ignored
+file. So as we move up and down the Dired buffer, the preview window
+stays in place regardless if we are on an ignored file or not.
+
+The default value of ~dired-preview-ignored-show-ignored-placeholders~
+is ~t~ because I think this is the better behaviour. Though users can
+set it to ~nil~ to retain the old functionality.
+
+Thanks to Álvaro Ramírez (xenodium) for the contribution. This was
+done in pull request 15: <https://github.com/protesilaos/dired-preview/pull/15>.
+
+The change is within the permissible limit of ~15 lines, meaning that
+Álvaro does not need to assign copyright to the Free Software
+Foundation.
+
+** The ~dired-preview-display-action-alist~ replaces ~dired-preview-display-action-alist-function~
+:PROPERTIES:
+:CUSTOM_ID: h:250662ef-3fd3-4abe-8cf7-71c72ce4619c
+:END:
+
+The old symbol is an alias for the new one and users will be notified
+accordingly while updating.
+
+This user option is for advanced users who want to customise where and
+how ~display-buffer~ places the preview window. Before, we were
+accepting only the symbol of a function that would return an
+appropriate action alist. Now we accept either a function's symbol or
+an action alist directly.
+
+Examples of both:
+
+#+begin_src emacs-lisp
+;; Use a function that returns an action alist:
+(setq dired-preview-display-action-alist #'dired-preview-display-action-alist-dwim)
+
+;; Use an action alist directly:
+(setq dired-preview-display-action-alist
+      '((display-buffer-in-side-window)
+        (side . bottom)
+        (window-height . 0.2)
+        (preserve-size . (t . t))))
+#+end_src
+
+Check our ~dired-preview-display-action-alist-dwim~ for inspiration if
+you want to have a function that returns an action alist based on,
+say, the width of the frame.
+
+** Preview of the next file works when marking for deletion
+:PROPERTIES:
+:CUSTOM_ID: h:68fd4a03-7ca9-489c-93bc-efdaf8faaefc
+:END:
+
+When we mark a file for deletion, Dired moves the point to the next
+line. Before, this would not trigger a preview of the updated
+file-at-point. Now it should work as expected.
+
+Technically, we check if the last command is among those stored in the
+variable ~dired-preview-trigger-commands~. If you think there are
+more commands we need to include there, just let me know.
+
+** The ~dired-preview-ignored-extensions-regexp~ can be ~nil~
+:PROPERTIES:
+:CUSTOM_ID: h:a06e0f9b-02d2-4a77-a259-eadaeff33c9e
+:END:
+
+This was always the intention, but the relevant code was not
+accounting for that scenario. It should work now as intended.
+
+* Version 0.2.0 on 2024-05-07
 :PROPERTIES:
 :CUSTOM_ID: h:4225d638-f5bb-4855-85c7-972ff40aad6d
 :END:
@@ -112,7 +261,7 @@ goal is to have methods that can preview PDFs and images without
 blocking Emacs. Other file types can be considered as well, though
 those two are the immediate priority.
 
-* 0.1.0 on 2023-07-08
+* Version 0.1.0 on 2023-07-08
 :PROPERTIES:
 :CUSTOM_ID: h:99cbb3dd-a0f1-4d2b-a945-58531f4ab189
 :END:

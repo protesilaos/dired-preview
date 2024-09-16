@@ -4,9 +4,9 @@
 #+language: en
 #+options: ':t toc:nil author:t email:t num:t
 #+startup: content
-#+macro: stable-version 0.2.0
-#+macro: release-date 2024-05-07
-#+macro: development-version 0.3.0-dev
+#+macro: stable-version 0.3.0
+#+macro: release-date 2024-09-16
+#+macro: development-version 0.4.0-dev
 #+macro: file @@texinfo:@file{@@$1@@texinfo:}@@
 #+macro: space @@texinfo:@: @@
 #+macro: kbd @@texinfo:@kbd{@@$1@@texinfo:}@@
@@ -92,10 +92,9 @@ Previews are shown subject to a small delay, per ther user option
 #+vindex: dired-preview-ignored-show-ignored-placeholders
 Files matching the ~dired-preview-ignored-extensions-regexp~ are not
 previewed, though a preview window is still displayed if the user
-option ~dired-preview-ignored-show-ignored-placeholders~ is non-nil [
-the ~dired-preview-ignored-show-ignored-placeholders~ is part of
-{{{development-version}}} ]. This is to avoid windows jumping in and
-out of focus as the user moves between files.
+option ~dired-preview-ignored-show-ignored-placeholders~ is non-nil.
+This is to avoid windows jumping in and out of focus as the user moves
+between files.
 
 [ In the near future, we may find ways to quickly preview any file
   type without affecting the performance of Emacs. ]
@@ -114,8 +113,6 @@ users.
 :PROPERTIES:
 :CUSTOM_ID: h:b63d9f69-d595-415b-b7c8-b24697ea27ce
 :END:
-
-[ Most of the commands or variables mentioned here are part of {{{development-version}}}. ]
 
 The ~dired-preview-mode~ and its global variant activate the ~dired-preview-mode-map~.
 This key map binds the following commands:
@@ -271,8 +268,6 @@ In this section we include sample code to help users further configure
 :PROPERTIES:
 :CUSTOM_ID: h:f5a5f8ed-4b03-4afc-96e2-83904be19739
 :END:
-
-[ This is part of {{{development-version}}}. ]
 
 #+findex: dired-preview-with-window
 The Lisp macro ~dired-preview-with-window~ can be used in custom
