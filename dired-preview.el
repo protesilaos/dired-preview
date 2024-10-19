@@ -126,7 +126,14 @@ The value may also be a function, which returns a `display-buffer'
 action alist.  See `dired-preview-display-action-alist-dwim' for the
 implementation details."
   :group 'dired-preview
-  :type 'function)
+  :type `(choice
+          (alist :key-type
+                (choice :tag "Condition"
+                        regexp
+                        (function :tag "Matcher function"))
+                :value-type ,display-buffer--action-custom-type)
+          (function :tag "Custom function like `dired-preview-display-action-alist-dwim'"))
+  :risky t)
 
 (defcustom dired-preview-delay 0.7
   "Time in seconds to wait before previewing."
