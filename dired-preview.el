@@ -279,6 +279,17 @@ FILE."
      (t
       (cons 'text file)))))
 
+(defmacro dired-preview-with-file-setup (&rest body)
+  "Run BODY while setting up the right preview environment."
+  (declare (indent 0))
+  `(cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
+     (let ((file (cdr file))
+           (inhibit-message t)
+           (enable-dir-local-variables nil)
+           (enable-local-variables :safe)
+           (non-essential t))
+       ,@body)))
+
 (cl-defgeneric dired-preview--get-buffer (file)
   "Get a buffer for FILE.")
 
@@ -287,13 +298,8 @@ FILE."
 ;; that returns the method with its implementation?
 (cl-defmethod dired-preview--get-buffer ((file (head text)))
   "Get preview buffer for text FILE type."
-  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
-    (let ((file (cdr file))
-          (inhibit-message t)
-          (enable-dir-local-variables nil)
-          (enable-local-variables :safe)
-          (non-essential t))
-      (find-file-noselect file :nowarn))))
+  (dired-preview-with-file-setup
+    (find-file-noselect file :nowarn)))
 
 (defun dired-preview--add-truncation-message ()
   "Add a message indicating that the previewed file is truncated."
@@ -415,30 +421,25 @@ This technically runs `scroll-down-command'."
   "Get preview buffer for large FILE.
 The size of the leading chunk is specified by
 `dired-preview-chunk-size'."
-  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
-    (let ((file (cdr file))
-          (inhibit-message t)
-          (enable-dir-local-variables nil)
-          (enable-local-variables :safe)
-          (non-essential t))
-      (if-let* ((buffer (or (get-file-buffer file)
-                            (find-buffer-visiting file)
-                            (alist-get file dired-preview--large-files-alist
-                                       nil nil #'equal))))
-          buffer ; Buffer is already being visited, we can reuse it
-        (with-current-buffer (create-file-buffer file)
-          ;; We create a buffer with a partial preview
-          (buffer-disable-undo)
-          (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
-          (when (eq buffer-file-coding-system 'no-conversion)
-            (hexl-mode))
-          (dired-preview--add-truncation-message)
-          (read-only-mode t)
-          ;; Because this buffer is not marked as visiting FILE, we need to keep
-          ;; track of it ourselves.
-          (setf (alist-get file dired-preview--large-files-alist
-                           nil nil 'equal)
-                (current-buffer)))))))
+  (dired-preview-with-file-setup
+    (if-let* ((buffer (or (get-file-buffer file)
+                          (find-buffer-visiting file)
+                          (alist-get file dired-preview--large-files-alist
+                                     nil nil #'equal))))
+        buffer ; Buffer is already being visited, we can reuse it
+      (with-current-buffer (create-file-buffer file)
+        ;; We create a buffer with a partial preview
+        (buffer-disable-undo)
+        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
+        (when (eq buffer-file-coding-system 'no-conversion)
+          (hexl-mode))
+        (dired-preview--add-truncation-message)
+        (read-only-mode t)
+        ;; Because this buffer is not marked as visiting FILE, we need to keep
+        ;; track of it ourselves.
+        (setf (alist-get file dired-preview--large-files-alist
+                         nil nil 'equal)
+              (current-buffer))))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head ignore)))
   "Get preview placeholder buffer for an ignored FILE."
@@ -456,26 +457,16 @@ The size of the leading chunk is specified by
 
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
-  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
-    (let ((file (cdr file))
-          (inhibit-message t)
-          (enable-dir-local-variables nil)
-          (enable-local-variables :safe)
-          (non-essential t))
-      (dired-noselect file))))
+  (dired-preview-with-file-setup
+    (dired-noselect file)))
 
 ;; FIXME 2024-04-22: Best way to preview images and PDF files?  For now
 ;; this is the same as the text file type, though we need to refine
 ;; it.
 (cl-defmethod dired-preview--get-buffer ((file (head image)))
   "Get preview buffer for image FILE type."
-  (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
-    (let ((file (cdr file))
-          (inhibit-message t)
-          (enable-dir-local-variables nil)
-          (enable-local-variables :safe)
-          (non-essential t))
-      (find-file-noselect file :nowarn))))
+  (dired-preview-with-file-setup
+    (find-file-noselect file :nowarn)))
 
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
