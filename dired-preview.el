@@ -128,10 +128,10 @@ implementation details."
   :group 'dired-preview
   :type `(choice
           (alist :key-type
-                (choice :tag "Condition"
-                        regexp
-                        (function :tag "Matcher function"))
-                :value-type ,display-buffer--action-custom-type)
+                 (choice :tag "Condition"
+                         regexp
+                         (function :tag "Matcher function"))
+                 :value-type ,display-buffer--action-custom-type)
           (function :tag "Custom function like `dired-preview-display-action-alist-dwim'"))
   :risky t)
 
@@ -227,10 +227,10 @@ until it drops below this number.")
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
 See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let (((not (file-directory-p file)))
-             ((stringp dired-preview-ignored-extensions-regexp))
-             (ext (file-name-extension file :include-dot))
-             ((not (string-blank-p ext))))
+  (when-let* (((not (file-directory-p file)))
+              ((stringp dired-preview-ignored-extensions-regexp))
+              (ext (file-name-extension file :include-dot))
+              ((not (string-blank-p ext))))
     (string-match-p ext dired-preview-ignored-extensions-regexp)))
 
 (defun dired-preview--file-large-p (file)
@@ -239,8 +239,8 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--file-displayed-p (file)
   "Return non-nil if FILE is already displayed in a window."
-  (when-let ((buffer (get-file-buffer file))
-             (window (get-buffer-window buffer)))
+  (when-let* ((buffer (get-file-buffer file))
+              (window (get-buffer-window buffer)))
     (window-live-p window)))
 
 (defun dired-preview--set-window-parameters (window value)
@@ -299,7 +299,7 @@ FILE."
 (cl-defmethod dired-preview--get-buffer ((file (head text)))
   "Get preview buffer for text FILE type."
   (dired-preview-with-file-setup
-    (find-file-noselect file :nowarn)))
+   (find-file-noselect file :nowarn)))
 
 (defun dired-preview--add-truncation-message ()
   "Add a message indicating that the previewed file is truncated."
@@ -338,17 +338,17 @@ Also see `dired-preview-open-dwim'."
 ;; NOTE 2024-07-29: Adapted from the `dired-do-open' found in Emacs 31.0.50.
 (defun dired-preview--open-externally (file)
   "Run appropriate command to open FILE externally."
-  (if-let ((command (cond
-                     ((executable-find "xdg-open")
-                      "xdg-open")
-                     ((memq system-type '(gnu/linux darwin))
-                      "open")
-                     ((memq system-type '(windows-nt ms-dos))
-                      "start")
-                     ((eq system-type 'cygwin)
-                      "cygstart")
-                     ((executable-find "run-mailcap")
-                      "run-mailcap"))))
+  (if-let* ((command (cond
+                      ((executable-find "xdg-open")
+                       "xdg-open")
+                      ((memq system-type '(gnu/linux darwin))
+                       "open")
+                      ((memq system-type '(windows-nt ms-dos))
+                       "start")
+                      ((eq system-type 'cygwin)
+                       "cygstart")
+                      ((executable-find "run-mailcap")
+                       "run-mailcap"))))
       (cond
        ((memq system-type '(gnu/linux))
         (call-process command nil 0 nil file))
@@ -375,7 +375,7 @@ Also see `dired-preview-find-file'."
   (interactive)
   (let (buffer)
     (dired-preview-with-window
-      (when-let ((file buffer-file-name))
+      (when-let* ((file buffer-file-name))
         (cond
          ((or (string-match-p dired-preview-media-extensions-regexp file)
               (string-match-p dired-preview-ignored-extensions-regexp file)
@@ -422,24 +422,24 @@ This technically runs `scroll-down-command'."
 The size of the leading chunk is specified by
 `dired-preview-chunk-size'."
   (dired-preview-with-file-setup
-    (if-let* ((buffer (or (get-file-buffer file)
-                          (find-buffer-visiting file)
-                          (alist-get file dired-preview--large-files-alist
-                                     nil nil #'equal))))
-        buffer ; Buffer is already being visited, we can reuse it
-      (with-current-buffer (create-file-buffer file)
-        ;; We create a buffer with a partial preview
-        (buffer-disable-undo)
-        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
-        (when (eq buffer-file-coding-system 'no-conversion)
-          (hexl-mode))
-        (dired-preview--add-truncation-message)
-        (read-only-mode t)
-        ;; Because this buffer is not marked as visiting FILE, we need to keep
-        ;; track of it ourselves.
-        (setf (alist-get file dired-preview--large-files-alist
-                         nil nil 'equal)
-              (current-buffer))))))
+   (if-let* ((buffer (or (get-file-buffer file)
+                         (find-buffer-visiting file)
+                         (alist-get file dired-preview--large-files-alist
+                                    nil nil #'equal))))
+       buffer ; Buffer is already being visited, we can reuse it
+     (with-current-buffer (create-file-buffer file)
+       ;; We create a buffer with a partial preview
+       (buffer-disable-undo)
+       (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
+       (when (eq buffer-file-coding-system 'no-conversion)
+         (hexl-mode))
+       (dired-preview--add-truncation-message)
+       (read-only-mode t)
+       ;; Because this buffer is not marked as visiting FILE, we need to keep
+       ;; track of it ourselves.
+       (setf (alist-get file dired-preview--large-files-alist
+                        nil nil 'equal)
+             (current-buffer))))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head ignore)))
   "Get preview placeholder buffer for an ignored FILE."
@@ -458,7 +458,7 @@ The size of the leading chunk is specified by
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
   (dired-preview-with-file-setup
-    (dired-noselect file)))
+   (dired-noselect file)))
 
 ;; FIXME 2024-04-22: Best way to preview images and PDF files?  For now
 ;; this is the same as the text file type, though we need to refine
@@ -466,7 +466,7 @@ The size of the leading chunk is specified by
 (cl-defmethod dired-preview--get-buffer ((file (head image)))
   "Get preview buffer for image FILE type."
   (dired-preview-with-file-setup
-    (find-file-noselect file :nowarn)))
+   (find-file-noselect file :nowarn)))
 
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
@@ -494,18 +494,18 @@ DIMENSION is either a `:width' or `:height' keyword.  It is
 checked against `split-width-threshold' or
 `split-height-threshold'"
   (pcase dimension
-    (:width (if-let ((window-width (floor (window-total-width) 2))
-                     ((> window-width fill-column)))
+    (:width (if-let* ((window-width (floor (window-total-width) 2))
+                      ((> window-width fill-column)))
                 window-width
               fill-column))
     (:height (floor (window-height) 2))))
 
 (defun dired-preview-display-action-side ()
   "Pick a side window that is appropriate for the given frame."
-  (if-let (split-width-threshold
-           (width (window-body-width))
-           ((>= width (window-body-height)))
-           ((>= width split-width-threshold)))
+  (if-let* (split-width-threshold
+            (width (window-body-width))
+            ((>= width (window-body-height)))
+            ((>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
     `(:side bottom :dimension window-height :size ,(dired-preview-get-window-size :height))))
 
@@ -569,9 +569,9 @@ Only do it with the current major mode is Dired."
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
   (dired-preview--delete-windows)
-  (when-let ((buffer (dired-preview--get-preview-buffer file)))
+  (when-let* ((buffer (dired-preview--get-preview-buffer file)))
     (dired-preview--display-buffer buffer)
-    (when-let ((window (get-buffer-window buffer)))
+    (when-let* ((window (get-buffer-window buffer)))
       (dired-preview--set-window-parameters window t))))
 
 (defun dired-preview--preview-p (file)
