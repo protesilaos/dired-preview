@@ -163,7 +163,7 @@ Users can specify their own conditions with something like this:
   "My preferred `dired-preview-display-action-alist-function'."
   '((display-buffer-in-side-window)
     (side . right)
-    (width . 0.3)))
+    (window-width . 0.3)))
 
 (setq dired-preview-display-action-alist #'my-dired-preview-to-the-right)
 #+end_src
@@ -338,7 +338,7 @@ matters.
   Stefan Monnier, Philip Kaludercic, Nofint.
 
 + Ideas and/or user feedback :: Bruno Boal, Ed Hamilton, Karthik
-  Chikmagalur, Peter Prevos.
+  Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, artelse.
 
 * GNU Free Documentation License
 :PROPERTIES:
