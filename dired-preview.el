@@ -698,7 +698,7 @@ the preview with `dired-preview-delay' of idleness."
 
 (defvar dired-preview-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") #'dired-preview-hexl-toggle)
+    (define-key map (kbd "C-c C-x") #'dired-preview-hexl-toggle)
     (define-key map (kbd "C-c C-f") #'dired-preview-find-file)
     (define-key map (kbd "C-c C-o") #'dired-preview-open-dwim)
     (define-key map (kbd "C-c C-u") #'dired-preview-page-up)
