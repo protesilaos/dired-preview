@@ -195,29 +195,35 @@ implementation details."
 
 (defun dired-preview--kill-buffers-by-size (buffers max-combined-size)
   "Kill BUFFERS to not exceed MAX-COMBINED-SIZE."
-  (dolist (buffer buffers)
-    (when (and (>= (dired-preview--get-buffer-cumulative-size buffers) max-combined-size)
-               (not (eq buffer (current-buffer))))
-      (ignore-errors (kill-buffer-if-not-modified buffer))
-      (setq buffers (delq buffer buffers))))
+  (catch 'enough
+    (dolist (buffer buffers)
+      (if (>= (dired-preview--get-buffer-cumulative-size buffers) max-combined-size)
+          (when (not (eq buffer (current-buffer)))
+            (ignore-errors (kill-buffer-if-not-modified buffer))
+            (setq buffers (delq buffer buffers)))
+        (throw 'enough t))))
   (setq dired-preview--buffers (delq nil (nreverse buffers))))
 
 (defun dired-preview--kill-buffers-by-length (buffers max-length)
   "Kill BUFFERS up to MAX-LENGTH."
   (let ((length (length buffers)))
-    (dolist (buffer buffers)
-      (when (> length max-length)
-        (ignore-errors (kill-buffer-if-not-modified buffer))
-        (setq length (1- length))
-        (setq buffers (delq buffer buffers)))))
+    (catch 'enough
+      (dolist (buffer buffers)
+        (if (> length max-length)
+            (when (not (eq buffer (current-buffer)))
+              (ignore-errors (kill-buffer-if-not-modified buffer))
+              (setq length (1- length))
+              (setq buffers (delq buffer buffers)))
+          (throw 'enough t)))))
   (setq dired-preview--buffers (delq nil (nreverse buffers))))
 
 (defun dired-preview--kill-buffers-unconditionally (buffers)
-  "Kill all BUFFERS."
+  "Kill all BUFFERS except the current one."
   (dolist (buffer buffers)
-    (ignore-errors (kill-buffer-if-not-modified buffer))
-    (setq buffers (delq buffer buffers)))
-  (setq dired-preview--buffers (delq nil (nreverse buffers))))
+    (when (not (eq buffer (current-buffer)))
+      (ignore-errors (kill-buffer-if-not-modified buffer))
+      (setq buffers (delq buffer buffers)))
+    (setq dired-preview--buffers (delq nil (nreverse buffers)))))
 
 (defun dired-preview--kill-buffers (&optional kill-all)
   "Implement `dired-preview-kill-buffers-method'.
