@@ -96,6 +96,11 @@ option ~dired-preview-ignored-show-ignored-placeholders~ is non-nil.
 This is to avoid windows jumping in and out of focus as the user moves
 between files.
 
+#+vindex: dired-preview-buffer-name-indicator
+Preview buffers have a prefix to their name to make them stand out.
+This is controlled by the user option ~dired-preview-buffer-name-indicator~.
+[ This is part of {{{development-version}}}. ]
+
 [ In the near future, we may find ways to quickly preview any file
   type without affecting the performance of Emacs. ]
 

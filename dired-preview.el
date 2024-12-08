@@ -145,6 +145,12 @@ implementation details."
   :group 'dired-preview
   :type 'natnum)
 
+(defcustom dired-preview-buffer-name-indicator "[P]"
+  "String to prepend to the name of preview buffers."
+  :type 'string
+  :package-version '(dired-preview . "0.4.0")
+  :group 'dired-preview)
+
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
@@ -252,10 +258,12 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--clean-up-window ()
   "Delete or clean up preview window."
-  (if (window-parameter (selected-window) 'dired-preview-window)
-      (dired-preview--delete-windows)
-    (dired-preview--set-window-parameters (selected-window) nil)
-    (remove-hook 'post-command-hook #'dired-preview--clean-up-window :local)))
+  (let ((window (selected-window)))
+    (if (window-parameter window 'dired-preview-window)
+        (dired-preview--delete-windows)
+      (dired-preview--rename-buffer (window-buffer window) :make-public)
+      (dired-preview--set-window-parameters window nil)
+      (remove-hook 'post-command-hook #'dired-preview--clean-up-window :local))))
 
 ;; TODO 2024-04-22: Add PDF type and concomitant method to display its buffer.
 (defun dired-preview--infer-type (file)
@@ -566,11 +574,30 @@ Only do it with the current major mode is Dired."
                         (dired-preview-display-action-alist-dwim)))))
     (display-buffer buffer action-alist)))
 
+(defun dired-preview--remove-preview-indicator (name)
+  "Remove `dired-preview-buffer-name-indicator' from NAME."
+  (string-trim
+   (string-replace dired-preview-buffer-name-indicator "" name)
+   "[\s\t\n\r]+" nil))
+
+(defun dired-preview--rename-buffer (buffer &optional make-public)
+  "Rename BUFFER to have `dired-preview-buffer-name-indicator'.
+With optional MAKE-PUBLIC, remove the indicator."
+  (let ((name (buffer-name buffer)))
+    (with-current-buffer buffer
+      (cond
+       (make-public
+        (rename-buffer (dired-preview--remove-preview-indicator name) :make-unique))
+       ((and (not (string-match-p (regexp-quote dired-preview-buffer-name-indicator) name))
+             (memq buffer dired-preview--buffers))
+        (rename-buffer (format "%s %s" dired-preview-buffer-name-indicator name) :make-unique))))))
+
 (defun dired-preview-display-file (file)
   "Display preview of FILE if appropriate."
   (dired-preview--delete-windows)
   (when-let* ((buffer (dired-preview--get-preview-buffer file)))
     (dired-preview--display-buffer buffer)
+    (dired-preview--rename-buffer buffer)
     (when-let* ((window (get-buffer-window buffer)))
       (dired-preview--set-window-parameters window t))))
 
