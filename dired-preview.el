@@ -103,7 +103,7 @@ user option."
   :group 'dired-preview
   :type 'natnum)
 
-(defcustom dired-preview-kill-buffers-method (cons 'combined-size (* 1000 1024))
+(defcustom dired-preview-kill-buffers-method (cons 'buffer-number 10)
   "Determine whether to periodically kill preview buffers while in Dired.
 When the value is nil, do not kill any preview buffer.
 
