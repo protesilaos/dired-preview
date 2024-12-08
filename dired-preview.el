@@ -103,6 +103,31 @@ user option."
   :group 'dired-preview
   :type 'natnum)
 
+(defcustom dired-preview-kill-buffers-method (cons 'combined-size (* 1000 1024))
+  "Determine whether to periodically kill preview buffers while in Dired.
+When the value is nil, do not kill any preview buffer.
+
+When the value is a cons cell of the form (SYMBOL . NATURAL-NUMBER),
+check if symbol is one of the following to derive the meaning of its
+NATURAL-NUMBER.
+
+- `buffer-number' means to kill the number of preview buffers that
+  exceed the NATURAL-NUMBER.
+
+- `combined-size' means to kill buffers until their combined size does
+  not exceed the NATURAL-NUMBER.
+
+Whatever the SYMBOL, buffers are killed from oldest to newest.
+
+Buffers are always killed when exiting Dired."
+  :type '(choice
+          (cons (choice (const :tag "Maximum number of buffers" buffer-number)
+                        (const :tag "Maximum cumulative buffer size" combined-size))
+                natnum)
+          (const :tag "Do not kill any preview buffers" nil))
+  :package-version '(dired-preview . "0.4.0")
+  :group 'dired-preview)
+
 (define-obsolete-variable-alias
   'dired-preview-display-action-alist-function
   'dired-preview-display-action-alist
@@ -161,37 +186,53 @@ implementation details."
   "Return buffers that show previews."
   (seq-filter #'buffer-live-p dired-preview--buffers))
 
-;; TODO 2023-07-07: This can become a user option, but let's keep it
-;; simple for now.  We need to be sure this is always doing the right
-;; thing.
-(defvar dired-preview--buffers-threshold (* 1000 1024)
-  "Maximum cumulative buffer size of previews.
-When the accumulated preview buffers exceed this number and
-`dired-preview--kill-buffers' is called, it will kill buffers
-until it drops below this number.")
-
-(defun dired-preview--get-buffer-cumulative-size ()
-  "Return cumulative buffer size of `dired-preview--get-buffers'."
+(defun dired-preview--get-buffer-cumulative-size (buffers)
+  "Return cumulative size of BUFFERS."
   (let ((size 0))
-    (mapc
-     (lambda (buffer)
-       (setq size (+ (buffer-size buffer) size)))
-     (dired-preview--get-buffers))
+    (dolist (buffer buffers)
+      (setq size (+ (buffer-size buffer) size)))
     size))
 
-(defun dired-preview--kill-buffers ()
-  "Kill preview buffers up to `dired-preview--buffers-threshold'."
+(defun dired-preview--kill-buffers-by-size (buffers max-combined-size)
+  "Kill BUFFERS to not exceed MAX-COMBINED-SIZE."
+  (dolist (buffer buffers)
+    (when (and (>= (dired-preview--get-buffer-cumulative-size buffers) max-combined-size)
+               (not (eq buffer (current-buffer))))
+      (ignore-errors (kill-buffer-if-not-modified buffer))
+      (setq buffers (delq buffer buffers))))
+  (setq dired-preview--buffers (delq nil (nreverse buffers))))
+
+(defun dired-preview--kill-buffers-by-length (buffers max-length)
+  "Kill BUFFERS up to MAX-LENGTH."
+  (let ((length (length buffers)))
+    (dolist (buffer buffers)
+      (when (> length max-length)
+        (ignore-errors (kill-buffer-if-not-modified buffer))
+        (setq length (1- length))
+        (setq buffers (delq buffer buffers)))))
+  (setq dired-preview--buffers (delq nil (nreverse buffers))))
+
+(defun dired-preview--kill-buffers-unconditionally (buffers)
+  "Kill all BUFFERS."
+  (dolist (buffer buffers)
+    (ignore-errors (kill-buffer-if-not-modified buffer))
+    (setq buffers (delq buffer buffers)))
+  (setq dired-preview--buffers (delq nil (nreverse buffers))))
+
+(defun dired-preview--kill-buffers (&optional kill-all)
+  "Implement `dired-preview-kill-buffers-method'.
+With optional KILL-ALL, kill all buffers regardless of the
+aforementioned user option."
   (let ((buffers (nreverse (dired-preview--get-buffers))))
-    (catch 'stop
-      (mapc
-       (lambda (buffer)
-         (when (and (>= (dired-preview--get-buffer-cumulative-size) dired-preview--buffers-threshold)
-                    (not (eq buffer (current-buffer))))
-           (ignore-errors (kill-buffer-if-not-modified buffer))
-           (setq buffers (delq buffer buffers)))
-         (throw 'stop t))
-       buffers))
-    (setq dired-preview--buffers (delq nil (nreverse buffers)))))
+    (cond
+     (kill-all
+      (dired-preview--kill-buffers-unconditionally buffers))
+     (dired-preview-kill-buffers-method
+      (pcase-let ((`(,method . ,number) dired-preview-kill-buffers-method))
+        (pcase method
+          ('combined-size (dired-preview--kill-buffers-by-size buffers number))
+          ('buffer-number (dired-preview--kill-buffers-by-length buffers number))
+          (_ (error "The `%s' in `dired-preview-kill-buffers-method' is unknown" method))))))))
 
 (defun dired-preview--kill-large-buffers ()
   "Kill buffers previewing large files."
@@ -477,16 +518,19 @@ The size of the leading chunk is specified by
    (find-file-noselect file :nowarn)))
 
 (defun dired-preview--add-to-previews (file)
-  "Add FILE to `dired-preview--buffers', if not already in a buffer.
+  "Add FILE buffer to `dired-preview--buffers', if not already in a buffer.
+Before adding to the list of preview buffers, make sure to clean up the
+list to be of maximum `dired-preview-max-preview-buffers' length.
+
 Always return FILE buffer."
   (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
     (let ((buffer (find-buffer-visiting file)))
-      (if (buffer-live-p buffer)
-          buffer
-        (setq buffer (dired-preview--get-buffer (dired-preview--infer-type file))))
-      (with-current-buffer buffer
-        (add-hook 'post-command-hook #'dired-preview--clean-up-window nil :local))
-      (add-to-list 'dired-preview--buffers buffer)
+      (unless (buffer-live-p buffer)
+        (setq buffer (dired-preview--get-buffer (dired-preview--infer-type file)))
+        (with-current-buffer buffer
+          (add-hook 'post-command-hook #'dired-preview--clean-up-window nil :local))
+        (dired-preview--kill-buffers)
+        (add-to-list 'dired-preview--buffers buffer))
       buffer)))
 
 (defun dired-preview--get-preview-buffer (file)
@@ -552,7 +596,7 @@ aforementioned user option."
   "Kill preview buffers and delete their windows."
   (dired-preview--cancel-timer)
   (dired-preview--delete-windows)
-  (dired-preview--kill-buffers)
+  (dired-preview--kill-buffers :kill-all)
   (dired-preview--kill-large-buffers)
   (dired-preview--kill-placeholder-buffers))
 

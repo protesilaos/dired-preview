@@ -101,6 +101,13 @@ Preview buffers have a prefix to their name to make them stand out.
 This is controlled by the user option ~dired-preview-buffer-name-indicator~.
 [ This is part of {{{development-version}}}. ]
 
+#+vindex: dired-preview-kill-buffers-method
+While using Dired, preview buffers are killed according to the user
+option ~dired-preview-kill-buffers-method~. The default method is to
+kill buffers that exceed a combined size. An alternative is to kill
+buffers that exceed a certain number. Else to not kill any buffers.
+Buffers are always killed upon exiting Dired.
+
 [ In the near future, we may find ways to quickly preview any file
   type without affecting the performance of Emacs. ]
 
