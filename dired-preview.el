@@ -288,7 +288,7 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--file-large-p (file)
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
-  (> (file-attribute-size (file-attributes file)) dired-preview-max-size))
+  (>= (file-attribute-size (file-attributes file)) dired-preview-max-size))
 
 (defun dired-preview--file-displayed-p (file)
   "Return non-nil if FILE is already displayed in a window."
@@ -553,7 +553,7 @@ checked against `split-width-threshold' or
 `split-height-threshold'"
   (pcase dimension
     (:width (if-let* ((window-width (floor (window-total-width) 2))
-                      ((> window-width fill-column)))
+                      ((>= window-width fill-column)))
                 window-width
               fill-column))
     (:height (floor (window-height) 2))))
