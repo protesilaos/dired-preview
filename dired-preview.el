@@ -209,7 +209,7 @@ implementation details."
   (let ((length (length buffers)))
     (catch 'enough
       (dolist (buffer buffers)
-        (if (> length max-length)
+        (if (>= length max-length)
             (when (not (eq buffer (current-buffer)))
               (ignore-errors (kill-buffer-if-not-modified buffer))
               (setq length (1- length))
