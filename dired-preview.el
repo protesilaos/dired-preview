@@ -526,7 +526,8 @@ The size of the leading chunk is specified by
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
 Return FILE buffer or nil."
   (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
-    (let* ((existing-buffer (or (find-buffer-visiting file)
+    (let* ((inhibit-message t)
+           (existing-buffer (or (find-buffer-visiting file)
                                 (and (file-directory-p file)
                                      (car (dired-buffers-for-dir file)))))
            (new-buffer (unless existing-buffer
