@@ -524,20 +524,19 @@ The size of the leading chunk is specified by
 
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
-Before adding to the list of preview buffers, make sure to clean up the
-list to be of maximum `dired-preview-max-preview-buffers' length.
-
 Return FILE buffer or nil."
   (cl-letf (((symbol-function 'recentf-track-opened-file) #'ignore))
-    (let ((buffer (find-buffer-visiting file)))
-      (if (buffer-live-p buffer)
-          buffer
-        (setq buffer (dired-preview--get-buffer (dired-preview--infer-type file))))
+    (let* ((existing-buffer (or (find-buffer-visiting file)
+                                (and (file-directory-p file)
+                                     (car (dired-buffers-for-dir file)))))
+           (new-buffer (unless existing-buffer
+                         (dired-preview--get-buffer (dired-preview--infer-type file)))))
       (dired-preview--kill-buffers)
-      (with-current-buffer buffer
-        (add-hook 'post-command-hook #'dired-preview--clean-up-window nil :local))
-      (add-to-list 'dired-preview--buffers buffer)
-      buffer)))
+      (when new-buffer
+        (with-current-buffer new-buffer
+          (add-hook 'post-command-hook #'dired-preview--clean-up-window nil :local))
+        (add-to-list 'dired-preview--buffers new-buffer))
+      (or existing-buffer new-buffer))))
 
 (defun dired-preview--get-preview-buffer (file)
   "Return buffer to preview FILE in."
