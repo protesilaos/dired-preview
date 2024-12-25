@@ -198,8 +198,9 @@ implementation details."
   (catch 'enough
     (dolist (buffer buffers)
       (if (>= (dired-preview--get-buffer-cumulative-size buffers) max-combined-size)
-          (when (not (eq buffer (current-buffer)))
-            (ignore-errors (kill-buffer-if-not-modified buffer))
+          (progn
+            (when (not (eq buffer (current-buffer)))
+              (ignore-errors (kill-buffer-if-not-modified buffer)))
             (setq buffers (delq buffer buffers)))
         (throw 'enough t))))
   (setq dired-preview--buffers (delq nil (nreverse buffers))))
@@ -210,8 +211,9 @@ implementation details."
     (catch 'enough
       (dolist (buffer buffers)
         (if (>= length max-length)
-            (when (not (eq buffer (current-buffer)))
-              (ignore-errors (kill-buffer-if-not-modified buffer))
+            (progn
+              (when (not (eq buffer (current-buffer)))
+                (ignore-errors (kill-buffer-if-not-modified buffer)))
               (setq length (1- length))
               (setq buffers (delq buffer buffers)))
           (throw 'enough t)))))
@@ -221,9 +223,9 @@ implementation details."
   "Kill all BUFFERS except the current one."
   (dolist (buffer buffers)
     (when (not (eq buffer (current-buffer)))
-      (ignore-errors (kill-buffer-if-not-modified buffer))
-      (setq buffers (delq buffer buffers)))
-    (setq dired-preview--buffers (delq nil (nreverse buffers)))))
+      (ignore-errors (kill-buffer-if-not-modified buffer)))
+    (setq buffers (delq buffer buffers)))
+  (setq dired-preview--buffers (delq nil (nreverse buffers))))
 
 (defun dired-preview--kill-buffers (&optional kill-all)
   "Implement `dired-preview-kill-buffers-method'.
