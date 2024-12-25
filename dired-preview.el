@@ -271,12 +271,10 @@ aforementioned user option."
 
 (defun dired-preview--delete-windows ()
   "Delete preview windows."
-  (mapc
-   (lambda (window)
-     (unless (or (one-window-p)
-                 (eq window (minibuffer-window)))
-       (delete-window window)))
-   (dired-preview--get-windows)))
+  (unless (one-window-p)
+    (dolist (window (dired-preview--get-windows))
+      (unless (eq window (minibuffer-window))
+        (delete-window window)))))
 
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
