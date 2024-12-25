@@ -243,11 +243,10 @@ aforementioned user option."
 
 (defun dired-preview--kill-large-buffers ()
   "Kill buffers previewing large files."
-  (mapc (lambda (pair)
-          (let ((buffer (cdr pair)))
-            (and (bufferp buffer)
-                 (kill-buffer buffer))))
-        dired-preview--large-files-alist)
+  (dolist (pair dired-preview--large-files-alist)
+    (let ((buffer (cdr pair)))
+      (and (bufferp buffer)
+           (kill-buffer buffer))))
   (setq dired-preview--large-files-alist nil))
 
 (defun dired-preview--kill-placeholder-buffers ()
