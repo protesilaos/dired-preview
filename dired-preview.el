@@ -303,10 +303,12 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--clean-up-window ()
   "Delete or clean up preview window."
-  (let ((window (selected-window)))
+  (let* ((window (selected-window))
+         (buffer (window-buffer window)))
     (if (window-parameter window 'dired-preview-window)
         (dired-preview--delete-windows)
       (dired-preview--rename-buffer (window-buffer window) :make-public)
+      (setq dired-preview--buffers (delq buffer dired-preview--buffers))
       (dired-preview--set-window-parameters window nil)
       (remove-hook 'post-command-hook #'dired-preview--clean-up-window :local))))
 
