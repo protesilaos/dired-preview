@@ -272,7 +272,8 @@ aforementioned user option."
   "Delete preview windows."
   (unless (one-window-p)
     (dolist (window (dired-preview--get-windows))
-      (unless (eq window (minibuffer-window))
+      (when (and (window-live-p window)
+                 (not (eq window (minibuffer-window))))
         (delete-window window)))))
 
 (defun dired-preview--file-ignored-p (file)
