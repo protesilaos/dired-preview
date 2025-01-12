@@ -270,10 +270,11 @@ aforementioned user option."
 
 (defun dired-preview--delete-windows ()
   "Delete preview windows."
-  (unless (one-window-p)
-    (dolist (window (dired-preview--get-windows))
-      (unless (eq window (minibuffer-window))
-        (delete-window window)))))
+  (dolist (window (dired-preview--get-windows))
+    (when (and (not (one-window-p))
+               (window-live-p window)
+               (not (eq window (minibuffer-window))))
+      (delete-window window))))
 
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
