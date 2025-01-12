@@ -358,7 +358,8 @@ FILE."
 
 (defun dired-preview--add-truncation-message ()
   "Add a message indicating that the previewed file is truncated."
-  (let ((end-ov (make-overlay (1- (point-max)) (point-max))))
+  (let* ((max (point-max))
+         (end-ov (make-overlay (1- max) max)))
     (overlay-put
      end-ov 'display
      (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
