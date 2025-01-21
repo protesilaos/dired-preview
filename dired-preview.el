@@ -613,7 +613,6 @@ aforementioned user option."
   "Call `dired-preview--close-previews' if the current buffer is not in Dired mode."
   (unless (eq major-mode 'dired-mode)
     (dired-preview--close-previews)
-    (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
     (put 'dired-preview-start 'function-executed nil)))
 
 (defun dired-preview--display-buffer (buffer)
@@ -676,7 +675,6 @@ the preview with `dired-preview-delay' of idleness."
   (condition-case nil
       (if (eq major-mode 'dired-mode)
           (progn
-            (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
             (dired-preview--cancel-timer)
             (let* ((file (dired-file-name-at-point))
                    (preview (dired-preview--preview-p file)))
