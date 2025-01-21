@@ -674,7 +674,7 @@ With optional MAKE-PUBLIC, remove the indicator."
 With optional NO-DELAY do not start a timer.  Otherwise produce
 the preview with `dired-preview-delay' of idleness."
   (condition-case nil
-      (if (derived-mode-p 'dired-mode)
+      (if (eq major-mode 'dired-mode)
           (progn
             (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
             (dired-preview--cancel-timer)
