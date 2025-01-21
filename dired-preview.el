@@ -689,7 +689,7 @@ the preview with `dired-preview-delay' of idleness."
          ((and (not preview)
                (memq this-command dired-preview-trigger-commands))
           (dired-preview--delete-windows)))
-      ((error user-error) nil))
+      ((error user-error quit) nil))
     (dired-preview--close-previews-outside-dired)))
 
 (defun dired-preview-disable-preview ()
