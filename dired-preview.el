@@ -673,24 +673,26 @@ With optional MAKE-PUBLIC, remove the indicator."
   "Trigger display of file at point after `dired-preview-trigger-commands'.
 With optional NO-DELAY do not start a timer.  Otherwise produce
 the preview with `dired-preview-delay' of idleness."
-  (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
-  (dired-preview--cancel-timer)
-  (let* ((file (dired-file-name-at-point))
-         (preview (dired-preview--preview-p file)))
-    (condition-case nil
-        (cond
-         ((and preview (memq this-command dired-preview-trigger-commands))
-          (if no-delay
-              (dired-preview-display-file file)
-            (setq dired-preview--timer
-                  (run-with-idle-timer dired-preview-delay nil #'dired-preview-display-file file))))
-         ((and file preview)
-          (dired-preview-start file))
-         ((and (not preview)
-               (memq this-command dired-preview-trigger-commands))
-          (dired-preview--delete-windows)))
-      ((error user-error quit) nil))
-    (dired-preview--close-previews-outside-dired)))
+  (condition-case nil
+      (if (derived-mode-p 'dired-mode)
+          (progn
+            (add-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
+            (dired-preview--cancel-timer)
+            (let* ((file (dired-file-name-at-point))
+                   (preview (dired-preview--preview-p file)))
+              (cond
+               ((and preview (memq this-command dired-preview-trigger-commands))
+                (if no-delay
+                    (dired-preview-display-file file)
+                  (setq dired-preview--timer
+                        (run-with-idle-timer dired-preview-delay nil #'dired-preview-display-file file))))
+               (preview
+                (dired-preview-start file))
+               ((and (not preview)
+                     (memq this-command dired-preview-trigger-commands))
+                (dired-preview--delete-windows)))))
+        (dired-preview--close-previews-outside-dired))
+    ((error user-error quit) nil)))
 
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
