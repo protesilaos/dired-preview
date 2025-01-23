@@ -610,8 +610,9 @@ aforementioned user option."
   (dired-preview--kill-placeholder-buffers))
 
 (defun dired-preview--close-previews-outside-dired ()
-  "Call `dired-preview--close-previews' if the current buffer is not in Dired mode."
-  (unless (eq major-mode 'dired-mode)
+  "Call `dired-preview--close-previews' if the current buffer is not in Dired mode.
+Do not consider the minibuffer as being another mode."
+  (unless (or (eq major-mode 'dired-mode) (minibufferp))
     (dired-preview--close-previews)
     (remove-hook 'window-state-change-hook #'dired-preview--close-previews-outside-dired)
     (put 'dired-preview-start 'function-executed nil)))
