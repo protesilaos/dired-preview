@@ -133,8 +133,7 @@ Buffers are always killed when exiting Dired."
   'dired-preview-display-action-alist
   "0.3.0")
 
-(defcustom dired-preview-display-action-alist
-  #'dired-preview-display-action-alist-dwim
+(defcustom dired-preview-display-action-alist #'dired-preview-display-action-alist-dwim
   "The `display-buffer' action alist for the preview window.
 This is the same data that is passed to `display-buffer-alist'.
 Read Info node `(elisp) Displaying Buffers'.  As such, it is
@@ -148,15 +147,29 @@ Example of a valid value:
       (preserve-size . (t . t)))
 
 The value may also be a function, which returns a `display-buffer'
-action alist.  See `dired-preview-display-action-alist-dwim' for the
-implementation details."
+action alist.  See `dired-preview-display-action-alist-dwim' (the
+default value of this variable) for the implementation details.  A
+simpler alternative is the function `dired-preview-display-action-alist-below'.
+
+The `dired-preview-display-action-alist-dwim' will display the preview
+window either at the right hand side or the bottom of the frame,
+depending on the available space.  It will also try to resize the window
+accordingly.
+
+Whereas the `dired-preview-display-action-alist-below' has a more simple
+behaviour of always displaying the preview window below the currently
+selected window and always setting the preview window's height to 0.3
+times the height of the frame."
   :group 'dired-preview
+  :package-version '(dired-preview . "0.4.0")
   :type `(choice
           (alist :key-type
                  (choice :tag "Condition"
                          regexp
                          (function :tag "Matcher function"))
                  :value-type ,display-buffer--action-custom-type)
+          (function :tag "Open to the side or bottom" dired-preview-display-action-alist-dwim)
+          (function :tag "Open below the selected window" dired-preview-display-action-alist-below)
           (function :tag "Custom function like `dired-preview-display-action-alist-dwim'"))
   :risky t)
 

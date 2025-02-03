@@ -184,6 +184,23 @@ Note that the ~display-buffer~ mechanism is inherently complex and
 powerful.  As such, this user option must be treated with care as a
 false value will break things.
 
+We still provide two functions which probably are enough to cover
+users' needs:
+
+#+findex: dired-preview-display-action-alist-dwim
+- The function ~dired-preview-display-action-alist-dwim~ is the
+  default value of ~dired-preview-display-action-alist~. It will
+  display the preview window either at the right hand side or the
+  bottom of the frame, depending on the available space. It will also
+  try to resize the window accordingly.
+
+#+findex: dired-preview-display-action-alist-below
+- Whereas the function ~dired-preview-display-action-alist-below~ has
+  a more simple behaviour of always displaying the preview window
+  below the currently selected window and always setting the preview
+  window's height to 0.3 times the height of the frame. [ The
+  ~dired-preview-display-action-alist-below~ is part of {{{development-version}}}. ]
+
 * Installation
 :PROPERTIES:
 :CUSTOM_ID: h:30b9c20c-071d-4943-a9a7-e8d7e7ea33e3
