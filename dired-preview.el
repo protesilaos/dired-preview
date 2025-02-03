@@ -572,6 +572,10 @@ checked against `split-width-threshold' or
 
 (defun dired-preview-display-action-alist-dwim ()
   "Reference function for `dired-preview-display-action-alist'.
+Determine whether to show a preview window on the right side or at the
+bottom of the frame, depending on the available space, and set the size
+of the window accordingly.
+
 Return a `display-buffer' action alist, as described in the
 aforementioned user option."
   (let ((properties (dired-preview-display-action-side)))
