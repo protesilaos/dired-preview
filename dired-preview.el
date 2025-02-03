@@ -583,6 +583,19 @@ aforementioned user option."
       (side . ,(plist-get properties :side))
       (,(plist-get properties :dimension) . ,(plist-get properties :size)))))
 
+(defun dired-preview-display-action-alist-below ()
+  "Reference function for `dired-preview-display-action-alist'.
+Always show the preview window below the currently selected window and
+always keep the height of the preview window to 0.3 times that of the
+total height of the frame.
+
+Return a `display-buffer' action alist, as described in the
+aforementioned user option."
+  `((display-buffer-below-selected)
+    (window-height . 0.3)
+    (dedicated . t)
+    (preserve-size . (t . t))))
+
 (defvar dired-preview-trigger-commands
   '( dired-next-line
      dired-previous-line
