@@ -685,10 +685,21 @@ With optional MAKE-PUBLIC, remove the indicator."
     (when-let* ((window (get-buffer-window buffer)))
       (dired-preview--set-window-parameters window t))))
 
+(defvar dired-preview-encryption-file-extensions '(".gpg" ".age")
+  "List of strings specifying file extensions for encryption.")
+
+(defun dired-preview--file-encrypted-p (file)
+  "Return non-nil if FILE is encrypted.
+More specifically, test if FILE has an extension among the
+`dired-preview-encryption-file-extensions'."
+  (when-let* ((extension (file-name-extension file :include-period)))
+    (member extension dired-preview-encryption-file-extensions)))
+
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
   (and file
        (not (string-match-p "/\\./" file))
+       (not (dired-preview--file-encrypted-p file))
        (or (file-regular-p file) (file-directory-p file))
        (file-readable-p file)
        (not (dired-preview--file-displayed-p file))
