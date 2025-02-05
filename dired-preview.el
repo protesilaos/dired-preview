@@ -505,7 +505,7 @@ The size of the leading chunk is specified by
        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
        (when (eq buffer-file-coding-system 'no-conversion)
          (let ((hexl-follow-ascii nil))
-           (hexl-mode)))
+           (hexl-mode 1)))
        (dired-preview--add-truncation-message)
        (read-only-mode t)
        ;; Because this buffer is not marked as visiting FILE, we need to keep
