@@ -496,8 +496,7 @@ The size of the leading chunk is specified by
   (dired-preview-with-file-setup
    (if-let* ((buffer (or (get-file-buffer file)
                          (find-buffer-visiting file)
-                         (alist-get file dired-preview--large-files-alist
-                                    nil nil #'equal))))
+                         (alist-get file dired-preview--large-files-alist nil nil #'equal))))
        buffer ; Buffer is already being visited, we can reuse it
      (with-current-buffer (create-file-buffer file)
        ;; We create a buffer with a partial preview
@@ -510,15 +509,12 @@ The size of the leading chunk is specified by
        (read-only-mode t)
        ;; Because this buffer is not marked as visiting FILE, we need to keep
        ;; track of it ourselves.
-       (setf (alist-get file dired-preview--large-files-alist
-                        nil nil 'equal)
-             (current-buffer))))))
+       (setf (alist-get file dired-preview--large-files-alist nil nil 'equal) (current-buffer))))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head ignore)))
   "Get preview placeholder buffer for an ignored FILE."
   (let* ((file (cdr file))
-         (buffer-name (format "%s (no preview)"
-                              (file-name-nondirectory file))))
+         (buffer-name (format "%s (no preview)" (file-name-nondirectory file))))
     (or (get-buffer buffer-name)
         (with-current-buffer (get-buffer-create buffer-name)
           (set-visited-file-name file t)
