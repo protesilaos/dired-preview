@@ -477,15 +477,17 @@ This technically runs `scroll-down-command'."
 
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
+(defvar hexl-follow-ascii)
 
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
   (interactive)
   (dired-preview-with-window
-    (if (eq major-mode 'hexl-mode)
-        (hexl-mode-exit)
-      (hexl-mode)
-      (dired-preview--add-truncation-message))))
+    (let ((hexl-follow-ascii nil))
+      (if (eq major-mode 'hexl-mode)
+          (hexl-mode-exit)
+        (hexl-mode 1)))
+    (dired-preview--add-truncation-message)))
 
 (cl-defmethod dired-preview--get-buffer ((file (head large)))
   "Get preview buffer for large FILE.
@@ -502,7 +504,8 @@ The size of the leading chunk is specified by
        (buffer-disable-undo)
        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
        (when (eq buffer-file-coding-system 'no-conversion)
-         (hexl-mode))
+         (let ((hexl-follow-ascii nil))
+           (hexl-mode)))
        (dired-preview--add-truncation-message)
        (read-only-mode t)
        ;; Because this buffer is not marked as visiting FILE, we need to keep
