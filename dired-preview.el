@@ -688,6 +688,7 @@ With optional MAKE-PUBLIC, remove the indicator."
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
   (and file
+       (not (string-match-p "/\\./" file))
        (or (file-regular-p file) (file-directory-p file))
        (file-readable-p file)
        (not (dired-preview--file-displayed-p file))

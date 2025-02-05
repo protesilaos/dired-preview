@@ -367,7 +367,7 @@ matters.
   Stefan Monnier, Philip Kaludercic, Nofint.
 
 + Ideas and/or user feedback :: Bruno Boal, Ed Hamilton, Karthik
-  Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, artelse.
+  Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, artelse, Inkbottle007.
 
 * GNU Free Documentation License
 :PROPERTIES:
