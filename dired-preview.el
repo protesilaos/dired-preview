@@ -652,9 +652,7 @@ Only do it with the current major mode is Dired."
   (let ((action-alist (cond
                        ((functionp dired-preview-display-action-alist)
                         (funcall dired-preview-display-action-alist))
-                       (dired-preview-display-action-alist)
-                       (t
-                        (dired-preview-display-action-alist-dwim)))))
+                       (dired-preview-display-action-alist))))
     (display-buffer buffer action-alist)))
 
 (defun dired-preview--remove-preview-indicator (name)
