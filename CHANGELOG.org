@@ -12,6 +12,109 @@ the manual: <https://protesilaos.com/emacs/dired-preview>.
 
 #+toc: headlines 1 insert TOC here, with one headline level
 
+* Version 0.4.0 on 2025-02-18
+:PROPERTIES:
+:CUSTOM_ID: h:af454ee4-dcae-4a76-80c7-d4f9be7730c7
+:END:
+
+This version contains several refinements and bug fixes.
+
+** Preview buffers have a mode line indicator
+:PROPERTIES:
+:CUSTOM_ID: h:309a2e0b-866a-45a6-b262-2d9f4c74531a
+:END:
+
+Preview buffers have a prefix to their name to make them stand out.
+This is controlled by the user option ~dired-preview-buffer-name-indicator~,
+which is a string that defaults to =[P]=.
+
+** Control how preview buffers are cleaned up
+:PROPERTIES:
+:CUSTOM_ID: h:7e173b76-ee7b-4720-8ab3-06664f5decee
+:END:
+
+The way ~dired-preview~ works is to display a buffer and then keep a
+list of preview buffers to economise on redisplaying it again. This
+list of buffers is relevant for as long as we are in the Dired buffer,
+otherwise all buffers therein are killed (buffers that were alive
+before being previewed are not touched).
+
+By default we delete from oldest to newest the accumulated buffers
+when they exceed =10= in total. Though users can modify this behaviour
+by editing the value of the new user option ~dired-preview-kill-buffers-method~
+(its doc string explains the technicalities).
+
+Thanks to artelse for discussing this with me in issue 20:
+<https://github.com/protesilaos/dired-preview/issues/20>.
+
+** The ~dired-preview-display-action-alist~ has a new optional function
+:PROPERTIES:
+:CUSTOM_ID: h:a51e6649-1f36-4f5b-9525-5541367d7bea
+:END:
+
+The ~dired-preview-display-action-alist~ is the user option which
+controls where the preview window is displayed. Its value can either
+be the symbol of a function or a ~display-buffer-alist~ entry.
+
+By default, we have a "do-what-I-mean" function that tries to find a
+good placement for the window. The new ~dired-preview-display-action-alist-below~
+function has a straightforward behaviour: it always shows the preview
+below the current window and it always makes the preview window 0.3
+times the height of the Emacs frame.
+
+** Encypted files are no longer previewed
+:PROPERTIES:
+:CUSTOM_ID: h:e93c9c41-c1ad-4e88-945a-c42962441bbe
+:END:
+
+This is to ensure that potentially sensitive contents are not
+displayed by accident, such as during a video call.
+
+** We no longer preview the "self" directory
+:PROPERTIES:
+:CUSTOM_ID: h:ec1bfadc-728e-4605-a8d7-25d1c595f9a1
+:END:
+
+We should not trigger a preview when the cursor is over the implicit
+=.= directory, as that causes a recursion that breaks things. Thanks
+to Inkbottle007 for reporting the bug in issue 23:
+<https://github.com/protesilaos/dired-preview/issues/23>.
+
+** Miscellaneous
+:PROPERTIES:
+:CUSTOM_ID: h:078acf4c-cf38-4053-befd-600476970d1a
+:END:
+
+- Fixed a scenario where we would try to delete the last available
+  window on the current frame. This should never happen. Thanks to
+  artelse for reporting a relevant bug in the discussion of issue 22:
+  <https://github.com/protesilaos/dired-preview/issues/22>.
+
+- Fixed a case when ~hexl-follow-ascii~ could fail to find an overlay
+  under certain conditions. This did not create any noticeable
+  problems, though having an error there would interfere with any
+  workflow that would rely on ~toggle-debug-on-error~.
+
+- The preview window will automatically be closed if the user switches
+  outside the given Dired buffer. We now do not consider a change to
+  the minibuffer as being "outside" this context. This way, a quick
+  =M-x= to, say, enable a minor mode does not have any effect on the
+  window layout.
+
+- Suppressed the messaging facility of the underlying tracking of
+  preview buffers. Otherwise, Dired would notify us that the directory
+  has changed whenever we would preview a new one, which is
+  superfluous.
+
+- The body of the ~dired-preview-trigger~ function, which determines
+  whether a preview will be displayed, is encapsulated in a ~condition-case~.
+  This helps capture errors and thus have a more predictable behaviour.
+
+- The ~dired-preview-display-action-alist~ has a more accurate
+  declaration which allows for its correct customisation inside the
+  Custom UI interface. In particular, it will behave the same way as
+  the ~display-buffer-alist~, where relevant.
+
 * Version 0.3.0 on 2024-09-16
 :PROPERTIES:
 :CUSTOM_ID: h:d9780c65-4e70-4188-ae17-abdef97f7ea9
