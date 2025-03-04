@@ -734,10 +734,17 @@ the preview with `dired-preview-delay' of idleness."
         (dired-preview--close-previews-outside-dired))
     ((error user-error quit) nil)))
 
+(defun dired-preview-get-first-window ()
+  "Return a window object for `other-window-scroll-default'."
+  (car (dired-preview--get-windows)))
+
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
   (unless (eq major-mode 'dired-mode)
     (user-error "Can only use `dired-preview' in Dired"))
+  (when (and other-window-scroll-default
+             (eq other-window-scroll-default #'dired-preview-get-first-window))
+    (setq-local other-window-scroll-default nil))
   (remove-hook 'post-command-hook #'dired-preview-trigger :local)
   (dired-preview--close-previews)
   (put 'dired-preview-start 'function-executed nil))
@@ -746,6 +753,8 @@ the preview with `dired-preview-delay' of idleness."
   "Enable Dired preview."
   (unless (eq major-mode 'dired-mode)
     (user-error "Can only use `dired-preview' in Dired"))
+  (when (>= emacs-major-version 29)
+    (setq-local other-window-scroll-default #'dired-preview-get-first-window))
   (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
   (dired-preview-trigger :no-delay))
 
