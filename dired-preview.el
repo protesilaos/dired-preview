@@ -382,9 +382,11 @@ FILE."
 (defmacro dired-preview-with-window (&rest body)
   "Evaluate BODY with the Dired preview window as selected."
   (declare (indent 0))
-  `(dolist (win (dired-preview--get-windows))
-     (with-selected-window win
-       ,@body)))
+  `(if-let* ((windows (dired-preview--get-windows)))
+       (dolist (win windows)
+         (with-selected-window win
+           ,@body))
+     (user-error "No dired-preview window available")))
 
 (defun dired-preview-find-file ()
   "Visit the currently previewed buffer with `find-file'.
