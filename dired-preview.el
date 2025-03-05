@@ -174,7 +174,9 @@ times the height of the frame."
   :risky t)
 
 (defcustom dired-preview-delay 0.7
-  "Time in seconds to wait before previewing."
+  "Time in seconds to wait before previewing.
+If the value is 0, then it is internally understood as 0.1 as no delay
+can affect performance."
   :group 'dired-preview
   :type 'number)
 
@@ -711,6 +713,15 @@ More specifically, test if FILE has an extension among the
     (put 'dired-preview-start 'function-executed t)
     (dired-preview-display-file file)))
 
+(defun dired-preview--start-idle-timer (file)
+  "Start the idle timer to preview FILE."
+  (setq dired-preview--timer
+        (run-with-idle-timer
+         (if (> dired-preview-delay 0)
+             dired-preview-delay
+           0.1)
+         nil #'dired-preview-display-file file)))
+
 (defun dired-preview-trigger (&optional no-delay)
   "Trigger display of file at point after `dired-preview-trigger-commands'.
 With optional NO-DELAY do not start a timer.  Otherwise produce
@@ -726,8 +737,7 @@ the preview with `dired-preview-delay' of idleness."
                ((and preview (memq this-command dired-preview-trigger-commands))
                 (if no-delay
                     (dired-preview-display-file file)
-                  (setq dired-preview--timer
-                        (run-with-idle-timer dired-preview-delay nil #'dired-preview-display-file file))))
+                  (dired-preview--start-idle-timer file)))
                (preview
                 (dired-preview-start file))
                ((and (not preview)
