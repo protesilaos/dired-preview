@@ -469,15 +469,22 @@ Also see `dired-preview-find-file'."
 This technically runs `scroll-up-command'."
   (interactive)
   (dired-preview-with-window
-    (call-interactively 'scroll-up-command)))
+    (call-interactively
+     (pcase (derived-mode-p major-mode)
+       ('doc-view-mode 'doc-view-scroll-up-or-next-page)
+       ('pdf-view-mode 'pdf-view-scroll-up-or-next-page)
+       (_ 'scroll-up-command)))))
 
 ;; Same as above for the terminology.
 (defun dired-preview-page-up ()
   "Move a page up in the preview window.
 This technically runs `scroll-down-command'."
   (interactive)
-  (dired-preview-with-window
-    (call-interactively 'scroll-down-command)))
+  (call-interactively
+     (pcase (derived-mode-p major-mode)
+       ('doc-view-mode 'doc-view-scroll-down-or-previous-page)
+       ('pdf-view-mode 'pdf-view-scroll-down-or-previous-page)
+       (_ 'scroll-down-command))))
 
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))

@@ -368,7 +368,7 @@ matters.
 
 + Ideas and/or user feedback :: Bruno Boal, Ed Hamilton, Karthik
   Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, Yiyu Zhou, artelse,
-  Inkbottle00.
+  fab6, Inkbottle00.
 
 * GNU Free Documentation License
 :PROPERTIES:
