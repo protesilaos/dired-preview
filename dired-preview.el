@@ -72,7 +72,7 @@
   (concat "\\."
           "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav"
           "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
-          "\\|iso\\|epub\\|pdf\\)")
+          "\\|iso\\|epub\\|pdf\\)\\'")
   "Regular expression of file type extensions to not preview.
 When the value is nil, do not ignore any file: preview
 everything.
@@ -294,15 +294,16 @@ aforementioned user option."
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
 See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let* (((not (file-directory-p file)))
-              ((stringp dired-preview-ignored-extensions-regexp))
-              (ext (file-name-extension file :include-dot))
-              ((not (string-blank-p ext))))
-    (string-match-p ext dired-preview-ignored-extensions-regexp)))
+  (when-let* (((stringp dired-preview-ignored-extensions-regexp))
+              ((not (file-directory-p file)))
+              (file-nondir (file-name-nondirectory file)))
+    (string-match-p dired-preview-ignored-extensions-regexp file-nondir)))
 
 (defun dired-preview--file-large-p (file)
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
-  (>= (file-attribute-size (file-attributes file)) dired-preview-max-size))
+  (>= (or (file-attribute-size (file-attributes file))
+          0)
+      dired-preview-max-size))
 
 (defun dired-preview--file-displayed-p (file)
   "Return non-nil if FILE is already displayed in a window."
@@ -333,17 +334,15 @@ See user option `dired-preview-ignored-extensions-regexp'."
   "Infer what type FILE is.
 Return a cons cell whose `car' is a symbol describing FILE and `cdr' is
 FILE."
-  (let ((ext (file-name-extension file :include-dot))
-        (file (expand-file-name file)))
+  (let* ((file (expand-file-name file))
+         (file-nondir (file-name-nondirectory file)))
     (cond
-     ((and (not (string-empty-p ext))
-           dired-preview-ignored-extensions-regexp
-           (string-match-p ext dired-preview-ignored-extensions-regexp))
+     ((and dired-preview-ignored-extensions-regexp
+           (string-match-p dired-preview-ignored-extensions-regexp file-nondir))
       (cons 'ignore file))
      ((dired-preview--file-large-p file)
       (cons 'large file))
-     ((and (not (string-empty-p ext))
-           (string-match-p ext dired-preview-image-extensions-regexp))
+     ((string-match-p dired-preview-image-extensions-regexp file-nondir)
       (cons 'image file))
      ((file-directory-p file)
       (cons 'directory file))
