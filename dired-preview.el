@@ -340,12 +340,12 @@ FILE."
      ((and dired-preview-ignored-extensions-regexp
            (string-match-p dired-preview-ignored-extensions-regexp file-nondir))
       (cons 'ignore file))
+     ((file-directory-p file)
+      (cons 'directory file))
      ((dired-preview--file-large-p file)
       (cons 'large file))
      ((string-match-p dired-preview-image-extensions-regexp file-nondir)
       (cons 'image file))
-     ((file-directory-p file)
-      (cons 'directory file))
      (t
       (cons 'text file)))))
 
