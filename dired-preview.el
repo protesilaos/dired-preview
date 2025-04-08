@@ -320,16 +320,13 @@ See user option `dired-preview-ignored-extensions-regexp'."
     (set-window-parameter window 'dedicated value)
     (set-window-parameter window 'no-other-window value)))
 
-(defun dired-preview--clean-up-window (&optional window)
-  "Delete or clean up preview window or WINDOW."
-  (let* ((window (or window (selected-window)))
-         (buffer (window-buffer window)))
-    (if (window-parameter window 'dired-preview-window)
-        (dired-preview--delete-windows)
-      (dired-preview--rename-buffer (window-buffer window) :make-public)
-      (setq dired-preview--buffers (delq buffer dired-preview--buffers))
-      (dired-preview--set-window-parameters window nil)
-      (remove-hook 'post-command-hook #'dired-preview--clean-up-window :local))))
+(defun dired-preview--clean-up-window (window)
+  "Remove preview state from WINDOW."
+  (let ((buffer (window-buffer window)))
+    (dired-preview--rename-buffer (window-buffer window) :make-public)
+    (setq dired-preview--buffers (delq buffer dired-preview--buffers))
+    (dired-preview--set-window-parameters window nil)
+    (remove-hook 'post-command-hook #'dired-preview--clean-up-window :local)))
 
 ;; TODO 2024-04-22: Add PDF type and concomitant method to display its buffer.
 (defun dired-preview--infer-type (file)
