@@ -284,12 +284,14 @@ aforementioned user option."
   (seq-filter #'dired-preview--window-parameter-p (window-list)))
 
 (defun dired-preview--delete-windows ()
-  "Delete preview windows."
+  "Delete preview windows or clean them up if they should not be deleted."
   (dolist (window (dired-preview--get-windows))
-    (when (and (not (one-window-p))
+    (if (and (not (one-window-p))
                (window-live-p window)
-               (not (eq window (minibuffer-window))))
-      (delete-window window))))
+               (not (eq window (minibuffer-window)))
+               (not (window-prev-buffers)))
+        (delete-window window)
+      (dired-preview--clean-up-window window))))
 
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
@@ -318,9 +320,9 @@ See user option `dired-preview-ignored-extensions-regexp'."
     (set-window-parameter window 'dedicated value)
     (set-window-parameter window 'no-other-window value)))
 
-(defun dired-preview--clean-up-window ()
-  "Delete or clean up preview window."
-  (let* ((window (selected-window))
+(defun dired-preview--clean-up-window (&optional window)
+  "Delete or clean up preview window or WINDOW."
+  (let* ((window (or window (selected-window)))
          (buffer (window-buffer window)))
     (if (window-parameter window 'dired-preview-window)
         (dired-preview--delete-windows)
