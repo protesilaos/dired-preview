@@ -289,7 +289,7 @@ aforementioned user option."
     (if (and (not (one-window-p))
                (window-live-p window)
                (not (eq window (minibuffer-window)))
-               (not (window-prev-buffers)))
+               (not (window-prev-buffers window)))
         (delete-window window)
       (dired-preview--clean-up-window window))))
 
