@@ -5,7 +5,7 @@
 ;; Author: Protesilaos Stavrou <info@protesilaos.com>
 ;; Maintainer: Protesilaos Stavrou <info@protesilaos.com>
 ;; URL: https://github.com/protesilaos/dired-preview
-;; Version: 0.4.0
+;; Version: 0.5.0
 ;; Package-Requires: ((emacs "28.1"))
 ;; Keywords: files, convenience
 

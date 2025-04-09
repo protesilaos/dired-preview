@@ -4,9 +4,9 @@
 #+language: en
 #+options: ':t toc:nil author:t email:t num:t
 #+startup: content
-#+macro: stable-version 0.4.0
-#+macro: release-date 2025-02-18
-#+macro: development-version 0.5.0-dev
+#+macro: stable-version 0.5.0
+#+macro: release-date 2025-04-09
+#+macro: development-version 0.6.0-dev
 #+macro: file @@texinfo:@file{@@$1@@texinfo:}@@
 #+macro: space @@texinfo:@: @@
 #+macro: kbd @@texinfo:@kbd{@@$1@@texinfo:}@@
@@ -87,8 +87,7 @@ The previewed file is displayed in a side window if its size is below
 the number specified in the user option ~dired-preview-max-size~.
 Previews are shown subject to a small delay, per ther user option
 ~dired-preview-delay~: if the value of the delay is 0, then it is
-internally understood as 0.1 as no delay can affect performance. [ The
-special treatment of the 0 value is part of {{{development-version}}}. ]
+internally understood as 0.1 as no delay can affect performance.
 
 #+vindex: dired-preview-ignored-extensions-regexp
 #+vindex: dired-preview-ignored-show-ignored-placeholders

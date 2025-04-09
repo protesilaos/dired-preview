@@ -12,6 +12,74 @@ the manual: <https://protesilaos.com/emacs/dired-preview>.
 
 #+toc: headlines 1 insert TOC here, with one headline level
 
+* Version 0.5.0 on 2025-04-09
+:PROPERTIES:
+:CUSTOM_ID: h:bbcb8fc7-5738-4761-b0e8-853d74172a5a
+:END:
+
+This version contains a few bug fixes and minor refinements that
+should improve the behaviour of the package.
+
+** Revised how preview windows are deleted
+:PROPERTIES:
+:CUSTOM_ID: h:0a4464ac-2f21-4c1e-8202-3bfe0b4eff93
+:END:
+
+In the past, ~dired-preview-mode~ could delete windows that held
+another buffer, thus undoing the window layout that was present before
+a preview buffer was displayed. Now ~dired-preview-mode~ makes sure to
+only delete windows that have not had another buffer shown in them,
+i.e. windows that were created just for preview purposes.
+
+** Directories no longer get misunderstood as "large files"
+:PROPERTIES:
+:CUSTOM_ID: h:c5c0206a-57ce-4ad5-a74f-96275b8aaaf2
+:END:
+
+We tweaked how we test the type of the buffer-to-be-preview such that
+directories are not mistaken for "large files". This was an issue for
+Mac computers that Sean Devlin brought to my attention in issue 27:
+<https://github.com/protesilaos/dired-preview/issues/27>.
+
+** The ~dired-preview-delay~ has a 0.1 second minimum to avoid instability
+:PROPERTIES:
+:CUSTOM_ID: h:4dcf8881-9c07-4a8e-93fa-24bedfd61db2
+:END:
+
+A value of 0 could lead to a noticeably degraded experience while
+navigating the Dired buffer. Thanks to Yiyu Zhou for reporting the
+matter in issue 2 on the GitLab mirror:
+<https://gitlab.com/protesilaos/dired-preview/-/issues/2>.
+
+** Files without an extension can also be ignored
+:PROPERTIES:
+:CUSTOM_ID: h:4d1b5c14-eb7d-473b-955a-3b3068b1a9ed
+:END:
+
+The user option ~dired-preview-ignored-extensions-regexp~ will now
+also match files without an extension, such as the =.DS_Store= on Mac
+computers.
+
+Thanks to Sean Devlin for the contribution in pull request 26:
+<https://github.com/protesilaos/dired-preview/pull/26>. The change is
+within the ~15-line limit, meaning that Sean does not need to assign
+copyright to the Free Software Foundation.
+
+** The preview buffer is the "other window" for scrolling purposes
+:PROPERTIES:
+:CUSTOM_ID: h:7eb9ced9-03a7-4436-9392-6352737aee15
+:END:
+
+The commands which scroll the other window, such as
+~scroll-other-window~ now operate on the preview buffer when that is
+displayed. Thanks to Karthik Chikmagalur for proposing this in issue
+24: <https://github.com/protesilaos/dired-preview/issues/24>.
+
+This is in addition to the commands we already provided for scrolling
+the preview window, namely, ~dired-preview-page-up~ and ~dired-preview-page-down~.
+Do =M-x describe-keymap= and then search for ~dired-preview-mode-map~:
+it is in effect when ~dired-preview-mode~ is enabled.
+
 * Version 0.4.0 on 2025-02-18
 :PROPERTIES:
 :CUSTOM_ID: h:af454ee4-dcae-4a76-80c7-d4f9be7730c7
