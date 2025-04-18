@@ -5,7 +5,7 @@
 ;; Author: Protesilaos Stavrou <info@protesilaos.com>
 ;; Maintainer: Protesilaos Stavrou <info@protesilaos.com>
 ;; URL: https://github.com/protesilaos/dired-preview
-;; Version: 0.5.0
+;; Version: 0.5.1
 ;; Package-Requires: ((emacs "28.1"))
 ;; Keywords: files, convenience
 
@@ -479,11 +479,12 @@ This technically runs `scroll-up-command'."
   "Move a page up in the preview window.
 This technically runs `scroll-down-command'."
   (interactive)
-  (call-interactively
+  (dired-preview-with-window
+    (call-interactively
      (pcase (derived-mode-p major-mode)
        ('doc-view-mode 'doc-view-scroll-down-or-previous-page)
        ('pdf-view-mode 'pdf-view-scroll-down-or-previous-page)
-       (_ 'scroll-down-command))))
+       (_ 'scroll-down-command)))))
 
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))

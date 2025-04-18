@@ -365,9 +365,9 @@ matters.
   Bruno Boal, Christian Tietze, Juergen Hoetzel, Karthik Chikmagalur,
   Sean Devlin, Stefan Monnier, Philip Kaludercic, Nofint.
 
-+ Ideas and/or user feedback :: Bruno Boal, Ed Hamilton, Karthik
-  Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, Yiyu Zhou, artelse,
-  fab6, Inkbottle00.
++ Ideas and/or user feedback :: Alex Popescu, Bruno Boal, Ed Hamilton,
+  Karthik Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, Yiyu Zhou,
+  artelse, fab6, Inkbottle00.
 
 * GNU Free Documentation License
 :PROPERTIES:
