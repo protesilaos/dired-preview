@@ -201,6 +201,29 @@ can affect performance."
   "Return buffers that show previews."
   (seq-filter #'buffer-live-p dired-preview--buffers))
 
+(defun dired-preview--get-directories ()
+  "Return directories from preview buffers."
+  (when-let* ((buffers (dired-preview--get-buffers)))
+    (delq nil
+          (mapcar
+           (lambda (buffer)
+             (with-current-buffer buffer
+               (when (derived-mode-p 'dired-mode)
+                 (dired-current-directory))))
+           buffers))))
+
+(declare-function dired-dwim-target-next "dired-aux" (&optional all-frames))
+
+(defun dired-preview-get-future-history ()
+  "Function for `dired-dwim-target' to get directories."
+  (let ((target-directories (dired-dwim-target-next :all-frames)))
+    (if-let* ((preview-directories (dired-preview--get-directories)))
+        (seq-remove
+         (lambda (file)
+           (member file preview-directories))
+         target-directories)
+      target-directories)))
+
 (defun dired-preview--get-buffer-cumulative-size (buffers)
   "Return cumulative size of BUFFERS."
   (let ((size 0))
@@ -764,6 +787,7 @@ the preview with `dired-preview-delay' of idleness."
   (when (and other-window-scroll-default
              (eq other-window-scroll-default #'dired-preview-get-first-window))
     (setq-local other-window-scroll-default nil))
+  (setq-local dired-dwim-target nil)
   (remove-hook 'post-command-hook #'dired-preview-trigger :local)
   (dired-preview--close-previews)
   (put 'dired-preview-start 'function-executed nil))
@@ -774,6 +798,7 @@ the preview with `dired-preview-delay' of idleness."
     (user-error "Can only use `dired-preview' in Dired"))
   (when (>= emacs-major-version 29)
     (setq-local other-window-scroll-default #'dired-preview-get-first-window))
+  (setq-local dired-dwim-target #'dired-preview-get-future-history)
   (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
   (dired-preview-trigger :no-delay))
 
