@@ -469,17 +469,15 @@ Otherwise, visit the file in an Emacs buffer.
 
 Also see `dired-preview-find-file'."
   (interactive)
-  (let (buffer)
+  (let ((buffer nil))
     (dired-preview-with-window
       (when-let* ((file buffer-file-name))
-        (cond
-         ((or (string-match-p dired-preview-media-extensions-regexp file)
-              (string-match-p dired-preview-ignored-extensions-regexp file)
-              (string-match-p dired-preview-image-extensions-regexp file))
-          (dired-preview--open-externally file))
-         (t
+        (if (or (string-match-p dired-preview-media-extensions-regexp file)
+                (string-match-p dired-preview-ignored-extensions-regexp file)
+                (string-match-p dired-preview-image-extensions-regexp file))
+            (dired-preview--open-externally file)
           (dired-preview--close-previews-outside-dired)
-          (setq buffer (find-file-noselect file))))))
+          (setq buffer (find-file-noselect file)))))
     (when buffer
       (pop-to-buffer buffer))))
 
