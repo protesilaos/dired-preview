@@ -12,6 +12,64 @@ the manual: <https://protesilaos.com/emacs/dired-preview>.
 
 #+toc: headlines 1 insert TOC here, with one headline level
 
+* Version 0.6.0 on 2025-07-18
+:PROPERTIES:
+:CUSTOM_ID: h:cdb4ee0e-5fd3-4958-9655-8b3ee6118755
+:END:
+
+This is a small release that provides quality-of-life refinements.
+
+** Optionally do not trigger a preview when entering the directory
+:PROPERTIES:
+:CUSTOM_ID: h:b6b61050-6827-405b-8fc8-ee0ee51f1418
+:END:
+
+The new user option ~dired-preview-trigger-on-start~ controls whether
+a preview is produced automatically when (i) entering a directory
+while (ii) the ~dired-preview-mode~ or its global counterpart is
+enabled.
+
+The default value is non-~nil~, which preserves the behaviour we have
+always had of previewing outright. When set to ~nil~, the preview does
+not happen upon entering a directory and is triggered only after one
+of the commands in ~denote-preview-trigger-commands~ is invoked.
+
+I did this is in response to issue 31 by dasoju: <https://github.com/protesilaos/dired-preview/issues/31>.
+
+** Define which commands trigger a preview
+:PROPERTIES:
+:CUSTOM_ID: h:20db592a-a282-4a63-a0f2-d64a6ded8ac2
+:END:
+
+The ~denote-preview-trigger-commands~ is now declared as a "user
+option" rather than a generic variable, meaning that users are
+encouraged to customise it (and it technically is available via the
+Custom interface and related). Everything should otherwise work the
+same as before.
+
+** The preview does not interfere with ~dired-dwim-target~
+:PROPERTIES:
+:CUSTOM_ID: h:96178e26-80b4-4717-85b8-e51a2f6c17e4
+:END:
+
+Previous versions would make ~dired-dwim-target~ not return the
+directory of the other window. Whereas we want the preview to not
+influence how Dired behaves when copying or renaming files.
+
+The bug was addressed in patch release =0.5.2=.
+
+**  Fixed a temporary bug in ~dired-preview-page-up~
+:PROPERTIES:
+:CUSTOM_ID: h:cc578a93-b441-4ddc-9f82-a3b643a80ab1
+:END:
+
+It was missing the macro we define to perform operations in the
+preview window.
+
+Thanks to Alex Popescu for telling me that the command was not
+working. This was done in issue 28: <https://github.com/protesilaos/dired-preview/issues/28>.
+
+The bug was addressed in patch release =0.5.1=.
 * Version 0.5.0 on 2025-04-09
 :PROPERTIES:
 :CUSTOM_ID: h:bbcb8fc7-5738-4761-b0e8-853d74172a5a
