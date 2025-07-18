@@ -191,6 +191,18 @@ can affect performance."
   :package-version '(dired-preview . "0.4.0")
   :group 'dired-preview)
 
+(defcustom dired-preview-trigger-on-start t
+  "When non-nil try to trigger a preview when enabling `dired-preview-mode'.
+This also means that the preview will be displayed as soon as the Dired
+buffer is visited, if `dired-preview-mode' is added to the
+`dired-mode-hook' or `dired-preview-global-mode' is enabled.
+
+If nil, then the preview happens only after one of the commands in
+`dired-preview-trigger-commands' is invoked and the mode is enabled."
+  :type 'boolean
+  :package-version '(dired-preview . "0.6.0")
+  :group 'dired-preview)
+
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
@@ -737,9 +749,10 @@ More specifically, test if FILE has an extension among the
 
 (defun dired-preview-start (file)
   "Preview FILE instantly when invoking Dired."
-  (unless (get 'dired-preview-start 'function-executed)
-    (put 'dired-preview-start 'function-executed t)
-    (dired-preview-display-file file)))
+  (when dired-preview-trigger-on-start
+    (unless (get 'dired-preview-start 'function-executed)
+      (put 'dired-preview-start 'function-executed t)
+      (dired-preview-display-file file))))
 
 (defun dired-preview--start-idle-timer (file)
   "Start the idle timer to preview FILE."

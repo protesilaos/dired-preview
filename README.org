@@ -89,6 +89,11 @@ Previews are shown subject to a small delay, per ther user option
 ~dired-preview-delay~: if the value of the delay is 0, then it is
 internally understood as 0.1 as no delay can affect performance.
 
+#+vindex: dired-preview-trigger-on-start
+When entering a directory, a preview is triggered outright if the user
+option ~dired-preview-trigger-on-start~ is set to a non-nil value (the
+default). [ Part of {{{development-version}}}. ]
+
 #+vindex: dired-preview-ignored-extensions-regexp
 #+vindex: dired-preview-ignored-show-ignored-placeholders
 Files matching the ~dired-preview-ignored-extensions-regexp~ are not
@@ -367,7 +372,7 @@ matters.
 
 + Ideas and/or user feedback :: Alex Popescu, Bruno Boal, Ed Hamilton,
   Karthik Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, Yiyu Zhou,
-  artelse, fab6, Inkbottle00.
+  artelse, dasoju, fab6, Inkbottle00.
 
 * GNU Free Documentation License
 :PROPERTIES:
