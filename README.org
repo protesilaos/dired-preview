@@ -94,6 +94,12 @@ When entering a directory, a preview is triggered outright if the user
 option ~dired-preview-trigger-on-start~ is set to a non-nil value (the
 default). [ Part of {{{development-version}}}. ]
 
+#+vindex: dired-preview-trigger-commands
+Other than entering a directory, a preview happens after one of the
+commands in ~dired-preview-trigger-commands~ is invoked. [ The
+~dired-preview-trigger-commands~ is now a user option as part of
+{{{development-version}}}. ]
+
 #+vindex: dired-preview-ignored-extensions-regexp
 #+vindex: dired-preview-ignored-show-ignored-placeholders
 Files matching the ~dired-preview-ignored-extensions-regexp~ are not

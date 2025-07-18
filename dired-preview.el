@@ -203,6 +203,24 @@ If nil, then the preview happens only after one of the commands in
   :package-version '(dired-preview . "0.6.0")
   :group 'dired-preview)
 
+(defcustom dired-preview-trigger-commands
+  '( dired-next-line
+     dired-previous-line
+     dired-flag-file-deletion
+     dired-mark
+     dired-unmark
+     dired-unmark-backward
+     dired-del-marker
+     dired-goto-file
+     dired-find-file
+     scroll-up-command
+     scroll-down-command)
+  "List of commands that trigger a preview when `dired-preview-mode' is enabled.
+Also see `dired-preview-trigger-on-start'."
+  :type '(repeat function)
+  :package-version '(dired-preview . "0.6.0")
+  :group 'dired-preview)
+
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
@@ -651,20 +669,6 @@ aforementioned user option."
     (window-height . 0.3)
     (dedicated . t)
     (preserve-size . (t . t))))
-
-(defvar dired-preview-trigger-commands
-  '( dired-next-line
-     dired-previous-line
-     dired-flag-file-deletion
-     dired-mark
-     dired-unmark
-     dired-unmark-backward
-     dired-del-marker
-     dired-goto-file
-     dired-find-file
-     scroll-up-command
-     scroll-down-command)
-  "List of Dired commands that trigger a preview.")
 
 (defvar dired-preview--timer nil
   "Most recent timer object to display a preview.")
