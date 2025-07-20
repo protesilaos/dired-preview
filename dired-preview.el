@@ -221,6 +221,14 @@ Also see `dired-preview-trigger-on-start'."
   :package-version '(dired-preview . "0.6.0")
   :group 'dired-preview)
 
+(defcustom dired-preview-hook nil
+  "Normal hook that runs after a preview is displayed.
+Functions that need to run in the preview window should wrap their body
+in the `dired-preview-with-window' macro."
+  :type 'hook
+  :package-version '(dired-preview . "0.7.0")
+  :group 'dired-preview)
+
 (defvar dired-preview--buffers nil
   "List with buffers of previewed files.")
 
@@ -728,7 +736,8 @@ With optional MAKE-PUBLIC, remove the indicator."
     (dired-preview--display-buffer buffer)
     (dired-preview--rename-buffer buffer)
     (when-let* ((window (get-buffer-window buffer)))
-      (dired-preview--set-window-parameters window t))))
+      (dired-preview--set-window-parameters window t)
+      (run-hooks 'dired-preview-hook))))
 
 (defvar dired-preview-encryption-file-extensions '(".gpg" ".age")
   "List of strings specifying file extensions for encryption.")
