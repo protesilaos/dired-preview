@@ -528,10 +528,12 @@ This technically runs `scroll-up-command'."
   (interactive)
   (dired-preview-with-window
     (call-interactively
-     (pcase (derived-mode-p major-mode)
-       ('doc-view-mode 'doc-view-scroll-up-or-next-page)
-       ('pdf-view-mode 'pdf-view-scroll-up-or-next-page)
-       (_ 'scroll-up-command)))))
+     (cond
+      ((derived-mode-p 'doc-view-mode)
+       'doc-view-scroll-up-or-next-page)
+      ((derived-mode-p 'pdf-view-mode)
+       'pdf-view-scroll-up-or-next-page)
+      (t 'scroll-up-command)))))
 
 ;; Same as above for the terminology.
 (defun dired-preview-page-up ()
@@ -540,10 +542,12 @@ This technically runs `scroll-down-command'."
   (interactive)
   (dired-preview-with-window
     (call-interactively
-     (pcase (derived-mode-p major-mode)
-       ('doc-view-mode 'doc-view-scroll-down-or-previous-page)
-       ('pdf-view-mode 'pdf-view-scroll-down-or-previous-page)
-       (_ 'scroll-down-command)))))
+     (cond
+      ((derived-mode-p 'doc-view-mode)
+       'doc-view-scroll-down-or-previous-page)
+      ((derived-mode-p 'pdf-view-mode)
+       'pdf-view-scroll-down-or-previous-page)
+      (t 'scroll-down-command)))))
 
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
