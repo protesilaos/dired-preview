@@ -838,7 +838,7 @@ the preview with `dired-preview-delay' of idleness."
     (define-key map (kbd "C-c C-u") #'dired-preview-page-up)
     (define-key map (kbd "C-c C-d") #'dired-preview-page-down)
     map)
-  "Key map for `dired-preview-mode'.")
+  "Keymap for `dired-preview-mode'.")
 
 ;;;###autoload
 (define-minor-mode dired-preview-mode

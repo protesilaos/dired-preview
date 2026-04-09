@@ -136,7 +136,7 @@ users.
 :END:
 
 The ~dired-preview-mode~ and its global variant activate the ~dired-preview-mode-map~.
-This key map binds the following commands:
+This keymap binds the following commands:
 
 #+findex: dired-preview-find-file
 - ~dired-preview-find-file~ :: Visit the currently previewed buffer
