@@ -268,7 +268,7 @@ Everything is in place to set up the package.
 :END:
 #+cindex: Package configuration
 
-Remember to read the doc string of each of these variables or functions.
+Remember to read the docstring of each of these variables or functions.
 
 #+begin_src emacs-lisp
 (require 'dired-preview)
