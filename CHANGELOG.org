@@ -1,5 +1,5 @@
 #+title: Change log of dired-preview.el
-#+author: Protesilaos Stavrou
+#+author: Protesilaos
 #+email: info@protesilaos.com
 #+options: ':t toc:nil author:t email:t num:t
 #+startup: content

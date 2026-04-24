@@ -1,5 +1,5 @@
 #+title: dired-preview.el: automatically preview files in Dired
-#+author: Protesilaos Stavrou
+#+author: Protesilaos
 #+email: info@protesilaos.com
 #+language: en
 #+options: ':t toc:nil author:t email:t num:t
@@ -16,13 +16,13 @@
 #+texinfo_dir_title: Dired-Preview: (dired-preview)
 #+texinfo_dir_desc: Automatically preview files in Dired
 #+texinfo_header: @set MAINTAINERSITE @uref{https://protesilaos.com,maintainer webpage}
-#+texinfo_header: @set MAINTAINER Protesilaos Stavrou
+#+texinfo_header: @set MAINTAINER Protesilaos
 #+texinfo_header: @set MAINTAINEREMAIL @email{info@protesilaos.com}
 #+texinfo_header: @set MAINTAINERCONTACT @uref{mailto:info@protesilaos.com,contact the maintainer}
 
 #+texinfo: @insertcopying
 
-This manual, written by Protesilaos Stavrou, describes the
+This manual, written by Protesilaos, describes the
 functionality and customization options of ~dired-preview~ (or
 ~dired-preview.el~) package, and provides every other piece of
 information pertinent to it.
@@ -368,7 +368,7 @@ Same idea, but open the file externally no matter what:
 This project is meant to be a collective effort.  Every bit of help
 matters.
 
-+ Author/maintainer :: Protesilaos Stavrou.
++ Author/maintainer :: Protesilaos.
 
 + Contributions to code or the manual :: Álvaro Ramírez (xenodium),
   Bruno Boal, Christian Tietze, Juergen Hoetzel, Karthik Chikmagalur,
