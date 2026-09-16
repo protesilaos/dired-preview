@@ -798,6 +798,9 @@ with `dired-preview-delay' of idleness."
   "Return a window object for `other-window-scroll-default'."
   (car (dired-preview--get-windows)))
 
+(defvar-local dired-preview--dwim-target-original-value nil
+  "The original value of `dired-dwim-target'.")
+
 (defun dired-preview-disable-preview ()
   "Disable Dired preview."
   (unless (eq major-mode 'dired-mode)
@@ -805,7 +808,7 @@ with `dired-preview-delay' of idleness."
   (when (and other-window-scroll-default
              (eq other-window-scroll-default #'dired-preview-get-first-window))
     (setq-local other-window-scroll-default nil))
-  (setq-local dired-dwim-target nil)
+  (setq-local dired-dwim-target dired-preview--dwim-target-original-value)
   (remove-hook 'post-command-hook #'dired-preview-trigger :local)
   (dired-preview--close-previews))
 
@@ -815,6 +818,7 @@ with `dired-preview-delay' of idleness."
     (user-error "Can only use `dired-preview' in Dired"))
   (when (>= emacs-major-version 29)
     (setq-local other-window-scroll-default #'dired-preview-get-first-window))
+  (setq-local dired-preview--dwim-target-original-value dired-dwim-target)
   (setq-local dired-dwim-target #'dired-preview-get-future-history)
   (add-hook 'post-command-hook #'dired-preview-trigger nil :local)
   (dired-preview-trigger :no-delay))
