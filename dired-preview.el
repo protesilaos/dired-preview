@@ -456,7 +456,8 @@ This means that the buffer is no longer among the previews.
 
 Also see `dired-preview-open-dwim'."
   (interactive)
-  (let (file buffer)
+  (let ((file nil)
+        (buffer nil))
     (dired-preview-with-window
       (setq file buffer-file-name)
       (dired-preview--close-previews-outside-dired)
