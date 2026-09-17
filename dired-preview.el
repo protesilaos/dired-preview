@@ -417,7 +417,10 @@ FILE."
      (let ((file (cdr file))
            (inhibit-message t)
            (enable-dir-local-variables nil)
-           (enable-local-variables :safe)
+           (enable-local-variables nil)
+           (vc-handled-backends nil)
+           (find-file-hook nil)
+           (inhibit-x-resources t)
            (non-essential t))
        ,@body)))
 
