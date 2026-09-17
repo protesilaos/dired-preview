@@ -376,7 +376,7 @@ matters.
 
 + Ideas and/or user feedback :: Alex Popescu, Bruno Boal, Ed Hamilton,
   Karthik Chikmagalur, Peter Prevos, Ramon Diaz-Uriarte, Yiyu Zhou,
-  abdulnafe-t, artelse, dasoju, fab6, Inkbottle00.
+  abdulnafe-t, artelse, dasoju, fab6, Inkbottle00, qhga.
 
 * GNU Free Documentation License
 :PROPERTIES:
