@@ -497,6 +497,13 @@ Also see `dired-preview-open-dwim'."
         (start-process (concat command " " file) nil command file)))
     (error "Cannot find a command to open `%s' externally" file)))
 
+(defun dired-preview--get-large-file-from-its-buffer (buffer)
+  "Return file of BUFFER among `dired-preview--large-files-alist'."
+  (seq-find
+   (lambda (pair)
+     (eq (cdr pair) buffer))
+   dired-preview--large-files-alist))
+
 (defun dired-preview-open-dwim ()
   "Do-What-I-Mean open the currently previewed file.
 This means that the buffer is no longer among the previews.
@@ -510,7 +517,8 @@ Also see `dired-preview-find-file'."
   (interactive)
   (let ((buffer nil))
     (dired-preview-with-window
-      (when-let* ((file buffer-file-name))
+      (when-let* ((file (or buffer-file-name
+                            (dired-preview--get-large-file-from-its-buffer (current-buffer)))))
         (if (or (and (stringp dired-preview-media-extensions-regexp)
                      (string-match-p dired-preview-media-extensions-regexp file))
                 (and (stringp dired-preview-ignored-extensions-regexp)
