@@ -51,7 +51,7 @@
 ;;
 ;; I took inspiration for `dired-preview' from the now unmaintained
 ;; `peep-dired' package by Adam Sokolnicki: <https://github.com/asok/peep-dired>.
-;; My original plan was to volunteer to maintain `peep-dired` but I
+;; My original plan was to volunteer to maintain `peep-dired' but I
 ;; decided to write it my own way: it was easier for me, plus I can
 ;; implement only what I consider necessary without upsetting existing
 ;; users.
