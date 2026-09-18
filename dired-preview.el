@@ -499,10 +499,11 @@ Also see `dired-preview-open-dwim'."
 
 (defun dired-preview--get-large-file-from-its-buffer (buffer)
   "Return file of BUFFER among `dired-preview--large-files-alist'."
-  (seq-find
-   (lambda (pair)
-     (eq (cdr pair) buffer))
-   dired-preview--large-files-alist))
+  (when-let* ((found (seq-find
+                      (lambda (pair)
+                        (eq (cdr pair) buffer))
+                      dired-preview--large-files-alist)))
+    (car found)))
 
 (defun dired-preview-open-dwim ()
   "Do-What-I-Mean open the currently previewed file.
