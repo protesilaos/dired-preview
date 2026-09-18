@@ -616,14 +616,16 @@ The size of the leading chunk is specified by
           (setq buffer-read-only t)
           (current-buffer)))))
 
+;; TODO 2026-09-18: Add `dired-preview--get-buffer' for images, PDFs,
+;; videos, and anything else.  Those would probably require something
+;; external to Emacs.  For example, we generate a thumbnail of a video
+;; and display that.  I need to learn how to do this sort of thing on
+;; the command-line.
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
   (dired-preview-with-file-setup
    (dired-noselect file)))
 
-;; FIXME 2024-04-22: Best way to preview images and PDF files?  For now
-;; this is the same as the text file type, though we need to refine
-;; it.
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
 Return FILE buffer or nil."
