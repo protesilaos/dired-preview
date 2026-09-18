@@ -1,4 +1,4 @@
-;;; dired-preview.el --- Automatically preview file at point in Dired -*- lexical-binding: t -*-
+;;; dired-preview.el --- Automatically preview files in Dired -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2023-2026  Free Software Foundation, Inc.
 
@@ -65,7 +65,7 @@
   (require 'subr-x))
 
 (defgroup dired-preview nil
-  "Automatically preview file at point in Dired."
+  "Automatically preview files in Dired."
   :group 'dired)
 
 (define-obsolete-variable-alias
