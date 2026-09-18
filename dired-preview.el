@@ -294,6 +294,10 @@ in the `dired-preview-with-window' macro."
       (setq size (+ (buffer-size buffer) size)))
     size))
 
+(defun dired-preview--kill-buffer (buffer)
+  "Kill BUFFER while ignoring errors."
+  (ignore-errors (kill-buffer buffer)))
+
 (defun dired-preview--kill-buffers-by-size (buffers max-combined-size)
   "Kill BUFFERS to not exceed MAX-COMBINED-SIZE."
   (catch 'enough
@@ -301,7 +305,7 @@ in the `dired-preview-with-window' macro."
       (if (>= (dired-preview--get-buffer-cumulative-size buffers) max-combined-size)
           (if (eq buffer (current-buffer))
               (setq buffers (delq buffer buffers))
-            (ignore-errors (kill-buffer-if-not-modified buffer)))
+            (dired-preview--kill-buffer buffer))
         (throw 'enough t))))
   (setq dired-preview--buffers (delq nil (nreverse buffers))))
 
@@ -314,7 +318,7 @@ in the `dired-preview-with-window' macro."
             (progn
               (if (eq buffer (current-buffer))
                   (setq buffers (delq buffer buffers))
-                (ignore-errors (kill-buffer-if-not-modified buffer)))
+                (dired-preview--kill-buffer buffer))
               (setq length (1- length)))
           (throw 'enough t)))))
   (setq dired-preview--buffers (delq nil (nreverse buffers))))
@@ -323,7 +327,7 @@ in the `dired-preview-with-window' macro."
   "Kill all BUFFERS except the current one."
   (dolist (buffer buffers)
     (when (not (eq buffer (current-buffer)))
-      (ignore-errors (kill-buffer-if-not-modified buffer)))
+      (dired-preview--kill-buffer buffer))
     (setq buffers (delq buffer buffers)))
   (setq dired-preview--buffers (delq nil (nreverse buffers))))
 
@@ -357,7 +361,7 @@ aforementioned user option."
                       (with-current-buffer buffer
                         (when (and (boundp 'dired-preview--placeholder-buffer-p)
                                    dired-preview--placeholder-buffer-p)
-                          (ignore-errors (kill-buffer buffer))
+                          (dired-preview--kill-buffer buffer)
                           t)))
                     (dired-preview--get-buffers))))
 
