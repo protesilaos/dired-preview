@@ -434,7 +434,6 @@ See user option `dired-preview-ignored-extensions'."
     (dired-preview--set-window-parameters w nil)
     (remove-hook 'post-command-hook #'dired-preview--clean-up-window :local)))
 
-;; TODO 2024-04-22: Add PDF type and concomitant method to display its buffer.
 (defun dired-preview--infer-type (file)
   "Infer what type FILE is.
 Return a cons cell whose `car' is a symbol describing FILE and `cdr' is
