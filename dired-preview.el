@@ -102,13 +102,28 @@ option."
           (string :tag "Ignore files matching regular expression")
           (repeat :tag "Ignore file extension that is a member of this list" string)))
 
+(define-obsolete-variable-alias
+  'dired-preview-image-extensions-regexp
+  'dired-preview-image-extensions
+  "0.7.0")
+
 (defvar dired-preview-image-extensions
   '("png" "jpg" "jpeg" "tiff")
   "Like `dired-preview-ignored-extensions' for image files.")
 
+(define-obsolete-variable-alias
+  'dired-preview-media-extensions-regexp
+  'dired-preview-media-extensions
+  "0.7.0")
+
 (defvar dired-preview-media-extensions
   '("mp3" "m4a" "flac" "mp4" "ogg" "mpv" "webm" "mov" "wav")
   "Like `dired-preview-ignored-extensions' for multimedia files.")
+
+(define-obsolete-variable-alias
+  'dired-preview-encryption-file-extensions
+  'dired-preview-encryption-extensions
+  "0.7.0")
 
 (defvar dired-preview-encryption-extensions
   '("gpg" "age")
