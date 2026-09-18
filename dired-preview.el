@@ -40,9 +40,9 @@
 ;; Previews are shown subject to a small delay, per ther user option
 ;; `dired-preview-delay'.
 ;;
-;; Files matching the `dired-preview-ignored-extensions-regexp' are
-;; not previewed, though a preview window is still displayed if the
-;; user option `dired-preview-ignored-show-ignored-placeholders' is
+;; Files matching the `dired-preview-ignored-extensions' are not
+;; previewed, though a preview window is still displayed if the user
+;; option `dired-preview-ignored-show-ignored-placeholders' is
 ;; non-nil.  This is to avoid windows jumping in and out of focus as
 ;; the user moves between files.
 ;;
