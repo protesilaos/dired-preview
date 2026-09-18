@@ -357,13 +357,13 @@ aforementioned user option."
 (defun dired-preview--kill-placeholder-buffers ()
   "Kill all placeholder preview buffers."
   (setq dired-preview--buffers
-        (seq-remove (lambda (buffer)
-                      (with-current-buffer buffer
-                        (when (and (boundp 'dired-preview--placeholder-buffer-p)
-                                   dired-preview--placeholder-buffer-p)
-                          (dired-preview--kill-buffer buffer)
-                          t)))
-                    (dired-preview--get-buffers))))
+        (seq-remove
+         (lambda (buffer)
+           (with-current-buffer buffer
+             (and (boundp 'dired-preview--placeholder-buffer-p)
+                  dired-preview--placeholder-buffer-p
+                  (dired-preview--kill-buffer buffer))))
+         (dired-preview--get-buffers))))
 
 (defun dired-preview--window-parameter-p (window)
   "Return non-nil if WINDOW has `dired-preview-window' parameter."
