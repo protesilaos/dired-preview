@@ -422,9 +422,8 @@ See user option `dired-preview-ignored-extensions'."
 (defun dired-preview--set-window-parameters (window value)
   "Set desired WINDOW parameters to VALUE."
   (with-selected-window window
-    (set-window-parameter window 'dired-preview-window value)
-    (set-window-parameter window 'dedicated value)
-    (set-window-parameter window 'no-other-window value)))
+    (dolist (parameter '(dired-preview-window dedicated no-other))
+      (set-window-parameter window parameter value))))
 
 (defun dired-preview--clean-up-window (&optional window)
   "Remove preview state from WINDOW or `selected-window'."
