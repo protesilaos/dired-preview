@@ -357,8 +357,8 @@ aforementioned user option."
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
 See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let* (((stringp dired-preview-ignored-extensions-regexp))
-              ((not (file-directory-p file)))
+  (when-let* ((_ (stringp dired-preview-ignored-extensions-regexp))
+              (_ (not (file-directory-p file)))
               (file-nondir (file-name-nondirectory file)))
     (string-match-p dired-preview-ignored-extensions-regexp file-nondir)))
 
