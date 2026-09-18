@@ -467,7 +467,8 @@ Also see `dired-preview-open-dwim'."
   (let ((file nil)
         (buffer nil))
     (dired-preview-with-window
-      (setq file buffer-file-name)
+      (setq file (or buffer-file-name
+                     (dired-preview--get-large-file-from-its-buffer (current-buffer))))
       (dired-preview--close-previews-outside-dired)
       (setq buffer (find-file-noselect file)))
     (pop-to-buffer buffer)))
