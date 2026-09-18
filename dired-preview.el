@@ -474,14 +474,6 @@ FILE."
   (dired-preview-with-file-setup
     (find-file-noselect file :nowarn)))
 
-(defun dired-preview--add-truncation-message ()
-  "Add a message indicating that the previewed file is truncated."
-  (let* ((max (point-max))
-         (end-ov (make-overlay (1- max) max)))
-    (overlay-put
-     end-ov 'display
-     (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
-
 ;;;###autoload
 (defmacro dired-preview-with-window (&rest body)
   "Evaluate BODY with the Dired preview window as selected."
@@ -604,6 +596,14 @@ This technically runs `scroll-down-command'."
 (declare-function hexl-mode "hexl")
 (declare-function hexl-mode-exit "hexl" (&optional arg))
 (defvar hexl-follow-ascii)
+
+(defun dired-preview--add-truncation-message ()
+  "Add a message indicating that the previewed file is truncated."
+  (let* ((max (point-max))
+         (end-ov (make-overlay (1- max) max)))
+    (overlay-put
+     end-ov 'display
+     (propertize "\n--PREVIEW TRUNCATED--" 'face 'shadow))))
 
 (defun dired-preview-hexl-toggle ()
   "Toggle preview between text and `hexl-mode'."
