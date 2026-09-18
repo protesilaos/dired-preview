@@ -141,9 +141,11 @@ Whatever the SYMBOL, buffers are killed from oldest to newest.
 
 Buffers are always killed when exiting Dired."
   :type '(choice
-          (cons (choice (const :tag "Maximum number of buffers" buffer-number)
-                        (const :tag "Maximum cumulative buffer size" combined-size))
-                natnum)
+          (cons
+           (choice
+            (const :tag "Maximum number of buffers" buffer-number)
+            (const :tag "Maximum cumulative buffer size" combined-size))
+           natnum)
           (const :tag "Do not kill any preview buffers" nil))
   :package-version '(dired-preview . "0.4.0")
   :group 'dired-preview)
