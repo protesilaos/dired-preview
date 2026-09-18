@@ -97,9 +97,10 @@ controlled by the `dired-preview-ignored-show-ignored-placeholders' user
 option."
   :group 'dired-preview
   :package-version '(dired-preview . "0.7.0")
-  :type '(choice (const :tag "Do not ignore any file (preview everything)" nil)
-                 (string :tag "Ignore files matching regular expression")
-                 (repeat :tag "Ignore file extension that is a member of this list" string)))
+  :type '(choice
+          (const :tag "Do not ignore any file (preview everything)" nil)
+          (string :tag "Ignore files matching regular expression")
+          (repeat :tag "Ignore file extension that is a member of this list" string)))
 
 (defvar dired-preview-image-extensions
   '("png" "jpg" "jpeg" "tiff")
