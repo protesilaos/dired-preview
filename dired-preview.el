@@ -450,6 +450,14 @@ FILE."
            ,@body))
      (user-error "No dired-preview window available")))
 
+(defun dired-preview--get-large-file-from-its-buffer (buffer)
+  "Return file of BUFFER among `dired-preview--large-files-alist'."
+  (when-let* ((found (seq-find
+                      (lambda (pair)
+                        (eq (cdr pair) buffer))
+                      dired-preview--large-files-alist)))
+    (car found)))
+
 (defun dired-preview-find-file ()
   "Visit the currently previewed buffer with `find-file'.
 This means that the buffer is no longer among the previews.
@@ -496,14 +504,6 @@ Also see `dired-preview-open-dwim'."
        ((memq system-type '(darwin))
         (start-process (concat command " " file) nil command file)))
     (error "Cannot find a command to open `%s' externally" file)))
-
-(defun dired-preview--get-large-file-from-its-buffer (buffer)
-  "Return file of BUFFER among `dired-preview--large-files-alist'."
-  (when-let* ((found (seq-find
-                      (lambda (pair)
-                        (eq (cdr pair) buffer))
-                      dired-preview--large-files-alist)))
-    (car found)))
 
 (defun dired-preview-open-dwim ()
   "Do-What-I-Mean open the currently previewed file.
