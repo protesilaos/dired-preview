@@ -458,6 +458,12 @@ FILE."
                       dired-preview--large-files-alist)))
     (car found)))
 
+(defun dired-preview--get-file-or-directory (buffer)
+  "Return file or directory from inside a preview window BUFFER."
+  (or buffer-file-name
+      (dired-preview--get-large-file-from-its-buffer buffer)
+      default-directory))
+
 (defun dired-preview-find-file ()
   "Visit the currently previewed buffer with `find-file'.
 This means that the buffer is no longer among the previews.
@@ -467,8 +473,7 @@ Also see `dired-preview-open-dwim'."
   (let ((file nil)
         (buffer nil))
     (dired-preview-with-window
-      (setq file (or buffer-file-name
-                     (dired-preview--get-large-file-from-its-buffer (current-buffer))))
+      (setq file (dired-preview--get-file-or-directory (current-buffer)))
       (dired-preview--close-previews-outside-dired)
       (setq buffer (find-file-noselect file)))
     (pop-to-buffer buffer)))
@@ -519,8 +524,7 @@ Also see `dired-preview-find-file'."
   (interactive)
   (let ((buffer nil))
     (dired-preview-with-window
-      (when-let* ((file (or buffer-file-name
-                            (dired-preview--get-large-file-from-its-buffer (current-buffer)))))
+      (when-let* ((file (dired-preview--get-file-or-directory (current-buffer))))
         (if (or (and (stringp dired-preview-media-extensions-regexp)
                      (string-match-p dired-preview-media-extensions-regexp file))
                 (and (stringp dired-preview-ignored-extensions-regexp)
