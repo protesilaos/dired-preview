@@ -101,6 +101,17 @@ option."
                  (string :tag "Ignore files matching regular expression")
                  (repeat :tag "Ignore file extension that is a member of this list" string)))
 
+;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
+(defvar dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
+  "List of file extensions representing image types.")
+
+;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
+;;
+;; FIXME 2026-09-18: Why do I have `dired-preview-image-extensions-regexp' as a user option but not this?
+(defvar dired-preview-media-extensions-regexp
+  "\\.\\(mp3\\|m4a\\|flac\\|mp4\\|ogg\\|mpv\\|webm\\|mov\\|wav\\)"
+  "Regular expression matching media file extensions.")
+
 (defcustom dired-preview-ignored-show-ignored-placeholders t
   "When non-nil, show a placeholder preview buffer for ignored files.
 Ignored files are controlled by the `dired-preview-ignored-extensions'
@@ -108,12 +119,6 @@ user option."
   :type 'boolean
   :package-version '(dired-preview . "0.3.0")
   :group 'dired-preview)
-
-;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
-(defcustom  dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
-  "List of file extensions representing image types."
-  :group 'dired-preview
-  :type '(string :tag "Image files matching regular expression"))
 
 (defcustom dired-preview-max-size (expt 2 20)
   "Files larger than this byte limit are not previewed."
@@ -496,13 +501,6 @@ Also see `dired-preview-open-dwim'."
       (dired-preview--close-previews-outside-dired)
       (setq buffer (find-file-noselect file)))
     (pop-to-buffer buffer)))
-
-;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
-;;
-;; FIXME 2026-09-18: Why do I have `dired-preview-image-extensions-regexp' as a user option but not this?
-(defvar dired-preview-media-extensions-regexp
-  "\\.\\(mp3\\|m4a\\|flac\\|mp4\\|ogg\\|mpv\\|webm\\|mov\\|wav\\)"
-  "Regular expression matching media file extensions.")
 
 (declare-function w32-shell-execute "w32fns.c")
 
