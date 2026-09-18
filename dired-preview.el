@@ -348,9 +348,9 @@ aforementioned user option."
   "Delete preview windows or clean them up if they should not be deleted."
   (dolist (window (dired-preview--get-windows))
     (if (and (not (one-window-p))
-               (window-live-p window)
-               (not (eq window (minibuffer-window)))
-               (not (window-prev-buffers window)))
+             (window-live-p window)
+             (not (eq window (minibuffer-window)))
+             (not (window-prev-buffers window)))
         (delete-window window)
       (dired-preview--clean-up-window window))))
 
@@ -383,7 +383,7 @@ See user option `dired-preview-ignored-extensions-regexp'."
 (defun dired-preview--clean-up-window (&optional window)
   "Remove preview state from WINDOW or `selected-window'."
   (let* ((w (or window (selected-window)))
-        (buffer (window-buffer w)))
+         (buffer (window-buffer w)))
     (dired-preview--rename-buffer (window-buffer w) :make-public)
     (setq dired-preview--buffers (delq buffer dired-preview--buffers))
     (dired-preview--set-window-parameters w nil)
@@ -429,7 +429,7 @@ FILE."
 (cl-defmethod dired-preview--get-buffer (file)
   "Get a generic preview buffer for FILE."
   (dired-preview-with-file-setup
-   (find-file-noselect file :nowarn)))
+    (find-file-noselect file :nowarn)))
 
 (defun dired-preview--add-truncation-message ()
   "Add a message indicating that the previewed file is truncated."
@@ -585,22 +585,22 @@ This technically runs `scroll-down-command'."
 The size of the leading chunk is specified by
 `dired-preview-chunk-size'."
   (dired-preview-with-file-setup
-   (if-let* ((buffer (or (get-file-buffer file)
-                         (find-buffer-visiting file)
-                         (alist-get file dired-preview--large-files-alist nil nil #'equal))))
-       buffer ; Buffer is already being visited, we can reuse it
-     (with-current-buffer (create-file-buffer file)
-       ;; We create a buffer with a partial preview
-       (buffer-disable-undo)
-       (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
-       (when (eq buffer-file-coding-system 'no-conversion)
-         (let ((hexl-follow-ascii nil))
-           (hexl-mode 1)))
-       (dired-preview--add-truncation-message)
-       (read-only-mode t)
-       ;; Because this buffer is not marked as visiting FILE, we need to keep
-       ;; track of it ourselves.
-       (setf (alist-get file dired-preview--large-files-alist nil nil 'equal) (current-buffer))))))
+    (if-let* ((buffer (or (get-file-buffer file)
+                          (find-buffer-visiting file)
+                          (alist-get file dired-preview--large-files-alist nil nil #'equal))))
+        buffer ; Buffer is already being visited, we can reuse it
+      (with-current-buffer (create-file-buffer file)
+        ;; We create a buffer with a partial preview
+        (buffer-disable-undo)
+        (insert-file-contents file nil 1 dired-preview-chunk-size 'replace)
+        (when (eq buffer-file-coding-system 'no-conversion)
+          (let ((hexl-follow-ascii nil))
+            (hexl-mode 1)))
+        (dired-preview--add-truncation-message)
+        (read-only-mode t)
+        ;; Because this buffer is not marked as visiting FILE, we need to keep
+        ;; track of it ourselves.
+        (setf (alist-get file dired-preview--large-files-alist nil nil 'equal) (current-buffer))))))
 
 (cl-defmethod dired-preview--get-buffer ((file (head ignore)))
   "Get preview placeholder buffer for an ignored FILE."
@@ -623,7 +623,7 @@ The size of the leading chunk is specified by
 (cl-defmethod dired-preview--get-buffer ((file (head directory)))
   "Get preview buffer for directory FILE type."
   (dired-preview-with-file-setup
-   (dired-noselect file)))
+    (dired-noselect file)))
 
 (defun dired-preview--add-to-previews (file)
   "Add FILE to `dired-preview--buffers', if not already in a buffer.
