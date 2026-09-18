@@ -117,7 +117,8 @@ option."
   "0.7.0")
 
 (defvar dired-preview-media-extensions
-  '("mp3" "m4a" "flac" "mp4" "ogg" "mpv" "webm" "mov" "wav")
+  '("mp3" "m4a" "flac" "ogg"
+    "mp4" "mpv" "webm" "mov" "wav")
   "Like `dired-preview-ignored-extensions' for multimedia files.")
 
 (define-obsolete-variable-alias
