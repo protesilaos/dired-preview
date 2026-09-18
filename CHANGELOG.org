@@ -12,6 +12,117 @@ the manual: <https://protesilaos.com/emacs/dired-preview>.
 
 #+toc: headlines 1 insert TOC here, with one headline level
 
+* Version 0.7.0 on 2026-09-18
+:PROPERTIES:
+:CUSTOM_ID: h:36c4b384-da08-4318-bea9-c313b6a5f3e3
+:END:
+
+This version introduces a few refinements to an already stable code base.
+
+** The ~dired-preview-ignored-extensions-regexp~ becomes ~dired-preview-ignored-extensions~
+:PROPERTIES:
+:CUSTOM_ID: h:5dd0509c-de0c-4ee0-b1b3-3c16b77d4643
+:END:
+
+This change reflects the broadened flexibility of the user option.
+Before, it used to accept either a ~nil~ value or a regular expression
+(i.e. a single string). In addition to these, it can now accept a list
+of strings, each of which represents a file type extension.
+
+The default value is basically this:
+
+#+begin_src emacs-lisp
+;; Illustration of the new value
+(setq dired-preview-ignored-extensions
+      '("mkv" "webm" "mp4"
+        "mp3" "ogg" "m4a" "flac" "wav"
+        "gz" "zst" "tar" "xz" "rar" "zip" "iso"
+        "epub" "pdf"
+        ".DS_Store"))
+#+end_src
+
+And here is how it used to be:
+
+#+begin_src emacs-lisp
+;; Illustration of the old variable and its value
+(setq dired-preview-ignored-extensions-regexp
+      (concat "\\."
+              "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav"
+              "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
+              "\\|iso\\|epub\\|pdf\\)\\'"))
+#+end_src
+
+Again, the old single regexp is supported, though I think the list is
+easier to write.
+
+** New ~dired-preview-hook~ and the ~dired-preview-with-window~ macro
+:PROPERTIES:
+:CUSTOM_ID: h:63dc9f9b-15a2-4a7e-b235-f3215a31617d
+:END:
+
+The hook is run when a preview is displayed. Functions that need to
+act with the preview window as current can rely on the macro
+~dired-preview-with-window~. Look at the code to get an idea of how
+the macro is used.
+
+Thanks to dasoju for requesting the hook in issue 32:
+<https://github.com/protesilaos/dired-preview/issues/32>.
+
+** The ~dired-preview-find-file~ and ~dired-preview-open-dwim~ are robust
+:PROPERTIES:
+:CUSTOM_ID: h:76e7a999-414e-4c74-8abe-f03571ac31ec
+:END:
+
+They should always find the underlying file and do the right thing
+with it. Basically, they should always work if there is a preview
+window.
+
+** The ~dired-preview-image-extensions-regexp~ is obsolete
+:PROPERTIES:
+:CUSTOM_ID: h:9ee15f7f-eb71-4d63-84d6-2355aff3d7ba
+:END:
+
+This was a user option since the early days of the package. I left it
+there by mistake. The manual was not mentioning it but it is possible
+that users have configured it.
+
+Its new name is ~dired-preview-image-extensions~ and it is just a
+variable (not a "user option"), meaning that users should configure it
+only if they know what they are doing.
+
+** The preview trigger is more robust
+:PROPERTIES:
+:CUSTOM_ID: h:8f85c51f-2619-43f9-a84c-e47f2fc984e7
+:END:
+
+It should now work reliably and do what is expected of the preview. I
+fixed this in response to issue 33 by dasoju:
+<https://github.com/protesilaos/dired-preview/issues/33>.
+
+** The preview state is handled properly
+:PROPERTIES:
+:CUSTOM_ID: h:821c2bd1-099f-4a49-a793-0c165f0dde8a
+:END:
+
+The preview window is closed when it ought to without affecting the
+rest of the layout. Unexpected values are also handled gracefully.
+With regard to the latter, thanks to abdulnafe-t for reporting a bug
+which helped me notice this problem. The report is part of issue 34:
+<https://github.com/protesilaos/dired-preview/issues/34>.
+
+** The original value of ~dired-dwim-target~ is handled correctly
+:PROPERTIES:
+:CUSTOM_ID: h:3eb593c3-22e1-4aaf-afc8-fa96e42c72db
+:END:
+
+The ~dired-dwim-target~ is changed by the preview so that relevant
+Dired operations are not affected by the preview window. When we need
+to restore that variable to its original value, we now do it without
+hardcoding a preference.
+
+Thanks to qhga for bringing this matter to my attention in issue 36:
+<https://github.com/protesilaos/dired-preview/issues/36>.
+
 * Version 0.6.0 on 2025-07-18
 :PROPERTIES:
 :CUSTOM_ID: h:cdb4ee0e-5fd3-4958-9655-8b3ee6118755
