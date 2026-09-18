@@ -364,8 +364,7 @@ See user option `dired-preview-ignored-extensions-regexp'."
 
 (defun dired-preview--file-large-p (file)
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
-  (>= (or (file-attribute-size (file-attributes file))
-          0)
+  (>= (or (file-attribute-size (file-attributes file)) 0)
       dired-preview-max-size))
 
 (defun dired-preview--file-displayed-p (file)
