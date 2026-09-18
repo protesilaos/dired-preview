@@ -697,8 +697,9 @@ checked against `split-width-threshold' or
   "Pick a side window that is appropriate for the given frame."
   (if-let* (split-width-threshold
             (width (window-body-width))
-            ((>= width (window-body-height)))
-            ((>= width split-width-threshold)))
+            (height (window-body-height))
+            (_ (>= width height))
+            (_ (>= width split-width-threshold)))
       `(:side right :dimension window-width :size ,(dired-preview-get-window-size :width))
     `(:side bottom :dimension window-height :size ,(dired-preview-get-window-size :height))))
 
