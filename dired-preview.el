@@ -121,6 +121,7 @@ user option."
 (defcustom dired-preview-max-size (expt 2 20)
   "Files larger than this byte limit are not previewed."
   :group 'dired-preview
+  :package-version '(dired-preview . "0.1.0")
   :type 'natnum)
 
 (defcustom dired-preview-kill-buffers-method (cons 'buffer-number 10)
@@ -200,11 +201,13 @@ times the height of the frame."
 If the value is 0, then it is internally understood as 0.1 as no delay
 can affect performance."
   :group 'dired-preview
+  :package-version '(dired-preview . "0.1.0")
   :type 'number)
 
 (defcustom dired-preview-chunk-size 10240
   "Size in bytes to read from large files."
   :group 'dired-preview
+  :package-version '(dired-preview . "0.1.0")
   :type 'natnum)
 
 (defcustom dired-preview-buffer-name-indicator "[P]"
