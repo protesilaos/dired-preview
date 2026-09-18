@@ -681,9 +681,6 @@ Return FILE buffer or nil."
   "Return buffer to preview FILE in."
   (dired-preview--add-to-previews file))
 
-(defvar dired-preview-buffer-name "*dired-preview*"
-  "Name of preview buffer.")
-
 (defun dired-preview-get-window-size (dimension)
   "Return window size by checking for DIMENSION.
 DIMENSION is either a `:width' or `:height' keyword.  It is
