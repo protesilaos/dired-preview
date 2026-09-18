@@ -109,6 +109,7 @@ user option."
   :package-version '(dired-preview . "0.3.0")
   :group 'dired-preview)
 
+;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
 (defcustom  dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
   "List of file extensions representing image types."
   :group 'dired-preview
@@ -496,6 +497,9 @@ Also see `dired-preview-open-dwim'."
       (setq buffer (find-file-noselect file)))
     (pop-to-buffer buffer)))
 
+;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
+;;
+;; FIXME 2026-09-18: Why do I have `dired-preview-image-extensions-regexp' as a user option but not this?
 (defvar dired-preview-media-extensions-regexp
   "\\.\\(mp3\\|m4a\\|flac\\|mp4\\|ogg\\|mpv\\|webm\\|mov\\|wav\\)"
   "Regular expression matching media file extensions.")

@@ -45,6 +45,7 @@
   (let ((dired-preview-ignored-extensions '("pdf" "epub")))
     (should (dired-preview--file-ignored-p "test.pdf"))))
 
+;; TODO 2026-09-18: Rewrite this test.
 (ert-deftest dpt--dired-preview--infer-type ()
   "Test that `dired-preview--infer-type' infers the correct file type."
   (let ((dired-preview-ignored-extensions
