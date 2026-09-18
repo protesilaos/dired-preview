@@ -101,16 +101,13 @@ option."
                  (string :tag "Ignore files matching regular expression")
                  (repeat :tag "Ignore file extension that is a member of this list" string)))
 
-;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
-(defvar dired-preview-image-extensions-regexp "\\.\\(png\\|jpg\\|jpeg\\|tiff\\)"
-  "List of file extensions representing image types.")
+(defvar dired-preview-image-extensions
+  '("png" "jpg" "jpeg" "tiff")
+  "Like `dired-preview-ignored-extensions' for image files.")
 
-;; TODO 2026-09-18: Do the same as in `dired-preview-ignored-extensions'.
-;;
-;; FIXME 2026-09-18: Why do I have `dired-preview-image-extensions-regexp' as a user option but not this?
-(defvar dired-preview-media-extensions-regexp
-  "\\.\\(mp3\\|m4a\\|flac\\|mp4\\|ogg\\|mpv\\|webm\\|mov\\|wav\\)"
-  "Regular expression matching media file extensions.")
+(defvar dired-preview-media-extensions
+  '("mp3" "m4a" "flac" "mp4" "ogg" "mpv" "webm" "mov" "wav")
+  "Like `dired-preview-ignored-extensions' for multimedia files.")
 
 (defcustom dired-preview-ignored-show-ignored-placeholders t
   "When non-nil, show a placeholder preview buffer for ignored files.
@@ -376,16 +373,30 @@ aforementioned user option."
         (delete-window window)
       (dired-preview--clean-up-window window))))
 
-(defun dired-preview--file-ignored-p (file)
-  "Return non-nil if FILE extension is among the ignored extensions.
-See user option `dired-preview-ignored-extensions'."
+(defun dired-preview--file-matches-kind-p (file kind)
+  "Return non-nil if FILE matches KIND.
+FILE is a string while KIND is the value of a variable like
+`dired-preview-ignored-extensions'."
   (when (not (file-directory-p file))
     (let ((file-no-dir (file-name-nondirectory file)))
       (cond
-       ((stringp dired-preview-ignored-extensions)
-        (string-match-p dired-preview-ignored-extensions file-no-dir))
-       ((listp dired-preview-ignored-extensions)
-        (member (or (file-name-extension file) file-no-dir) dired-preview-ignored-extensions))))))
+       ((stringp kind)
+        (string-match-p kind file-no-dir))
+       ((listp kind)
+        (member (or (file-name-extension file) file-no-dir) kind))))))
+
+(defun dired-preview--file-ignored-p (file)
+  "Return non-nil if FILE extension is among the ignored extensions.
+See user option `dired-preview-ignored-extensions'."
+  (dired-preview--file-matches-kind-p file dired-preview-ignored-extensions))
+
+(defun dired-preview--file-image-p (file)
+  "Return non-nil if FILE is `dired-preview-image-extensions'."
+  (dired-preview--file-matches-kind-p file dired-preview-image-extensions))
+
+(defun dired-preview--file-media-p (file)
+  "Return non-nil if FILE is `dired-preview-media-extensions'."
+  (dired-preview--file-matches-kind-p file dired-preview-media-extensions))
 
 (defun dired-preview--file-large-p (file)
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
@@ -419,8 +430,7 @@ See user option `dired-preview-ignored-extensions'."
   "Infer what type FILE is.
 Return a cons cell whose `car' is a symbol describing FILE and `cdr' is
 FILE."
-  (let* ((file (expand-file-name file))
-         (file-nondir (file-name-nondirectory file)))
+  (let ((file (expand-file-name file)))
     (cond
      ((dired-preview--file-ignored-p file)
       (cons 'ignore file))
@@ -428,8 +438,8 @@ FILE."
       (cons 'directory file))
      ((dired-preview--file-large-p file)
       (cons 'large file))
-     ((and (stringp dired-preview-image-extensions-regexp)
-           (string-match-p dired-preview-image-extensions-regexp file-nondir))
+     ;; TODO 2026-09-18: Extend this to `dired-preview--file-media-p'.
+     ((dired-preview--file-image-p file)
       (cons 'image file))
      (t
       (cons 'text file)))))
@@ -535,21 +545,18 @@ Also see `dired-preview-open-dwim'."
   "Do-What-I-Mean open the currently previewed file.
 This means that the buffer is no longer among the previews.
 
-If the file name matches `dired-preview-media-extensions-regexp',
-`dired-preview-ignored-extensions', or
-`dired-preview-image-extensions-regexp', then open it externally.
-Otherwise, visit the file in an Emacs buffer.
+If the file name matches `dired-preview-ignored-extensions',
+`dired-preview-media-extensions', or `dired-preview-image-extensions',
+then open it externally.  Otherwise, visit the file in an Emacs buffer.
 
 Also see `dired-preview-find-file'."
   (interactive)
   (let ((buffer nil))
     (dired-preview-with-window
       (when-let* ((file (dired-preview--get-file-or-directory (current-buffer))))
-        (if (or (and (stringp dired-preview-media-extensions-regexp)
-                     (string-match-p dired-preview-media-extensions-regexp file))
-                (dired-preview--file-ignored-p file)
-                (and (stringp dired-preview-image-extensions-regexp)
-                     (string-match-p dired-preview-image-extensions-regexp file)))
+        (if (or (dired-preview--file-ignored-p file)
+                (dired-preview--file-media-p file)
+                (dired-preview--file-image-p file))
             (dired-preview--open-externally file)
           (dired-preview--close-previews-outside-dired)
           (setq buffer (find-file-noselect file)))))
