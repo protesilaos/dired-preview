@@ -68,26 +68,42 @@
   "Automatically preview file at point in Dired."
   :group 'dired)
 
-(defcustom dired-preview-ignored-extensions-regexp
-  (concat "\\."
-          "\\(mkv\\|webm\\|mp4\\|mp3\\|ogg\\|m4a\\|flac\\|wav"
-          "\\|gz\\|zst\\|tar\\|xz\\|rar\\|zip"
-          "\\|iso\\|epub\\|pdf\\)\\'")
-  "Regular expression of file type extensions to not preview.
-When the value is nil, do not ignore any file: preview
-everything.
+(define-obsolete-variable-alias
+  'dired-preview-ignored-extensions-regexp
+  'dired-preview-ignored-extensions
+  "0.7.0")
 
-A placeholder window will be displayed even for files that are ignored,
-in order to avoid windows jumping in and out of focus.  This behaviour
-is controlled by the `dired-preview-ignored-show-ignored-placeholders'
-user option."
+(defcustom dired-preview-ignored-extensions
+  '("mkv" "webm" "mp4"
+    "mp3" "ogg" "m4a" "flac" "wav"
+    "gz" "zst" "tar" "xz" "rar" "zip" "iso"
+    "epub" "pdf"
+    ".DS_Store")
+  "File extensions to ignore.
+
+The value can be any of the following:
+
+- nil, which means to not ignore anything.
+
+- A regular expression of file type extensions to ignore.
+
+- A list of strings, representing file type extenstions.  Each of these
+  extensions is checked for equality against the return value of
+  `file-name-extension' without its PERIOD argument.
+
+A placeholder window is displayed for files that are ignored, in order
+to avoid windows jumping in and out of focus.  This behaviour is
+controlled by the `dired-preview-ignored-show-ignored-placeholders' user
+option."
   :group 'dired-preview
+  :package-version '(dired-preview . "0.7.0")
   :type '(choice (const :tag "Do not ignore any file (preview everything)" nil)
-                 (string :tag "Ignore files matching regular expression")))
+                 (string :tag "Ignore files matching regular expression")
+                 (repeat :tag "Ignore file extension that is a member of this list" string)))
 
 (defcustom dired-preview-ignored-show-ignored-placeholders t
   "When non-nil, show a placeholder preview buffer for ignored files.
-Ignored files are controlled by the `dired-preview-ignored-extensions-regexp'
+Ignored files are controlled by the `dired-preview-ignored-extensions'
 user option."
   :type 'boolean
   :package-version '(dired-preview . "0.3.0")
@@ -356,11 +372,14 @@ aforementioned user option."
 
 (defun dired-preview--file-ignored-p (file)
   "Return non-nil if FILE extension is among the ignored extensions.
-See user option `dired-preview-ignored-extensions-regexp'."
-  (when-let* ((_ (stringp dired-preview-ignored-extensions-regexp))
-              (_ (not (file-directory-p file)))
-              (file-nondir (file-name-nondirectory file)))
-    (string-match-p dired-preview-ignored-extensions-regexp file-nondir)))
+See user option `dired-preview-ignored-extensions'."
+  (when (not (file-directory-p file))
+    (let ((file-no-dir (file-name-nondirectory file)))
+      (cond
+       ((stringp dired-preview-ignored-extensions)
+        (string-match-p dired-preview-ignored-extensions file-no-dir))
+       ((listp dired-preview-ignored-extensions)
+        (member (or (file-name-extension file) file-no-dir) dired-preview-ignored-extensions))))))
 
 (defun dired-preview--file-large-p (file)
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
@@ -515,7 +534,7 @@ Also see `dired-preview-open-dwim'."
 This means that the buffer is no longer among the previews.
 
 If the file name matches `dired-preview-media-extensions-regexp',
-`dired-preview-ignored-extensions-regexp', or
+`dired-preview-ignored-extensions', or
 `dired-preview-image-extensions-regexp', then open it externally.
 Otherwise, visit the file in an Emacs buffer.
 
@@ -526,8 +545,7 @@ Also see `dired-preview-find-file'."
       (when-let* ((file (dired-preview--get-file-or-directory (current-buffer))))
         (if (or (and (stringp dired-preview-media-extensions-regexp)
                      (string-match-p dired-preview-media-extensions-regexp file))
-                (and (stringp dired-preview-ignored-extensions-regexp)
-                     (string-match-p dired-preview-ignored-extensions-regexp file))
+                (dired-preview--file-ignored-p file)
                 (and (stringp dired-preview-image-extensions-regexp)
                      (string-match-p dired-preview-image-extensions-regexp file)))
             (dired-preview--open-externally file)

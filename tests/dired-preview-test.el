@@ -35,20 +35,20 @@
 (require 'dired-preview)
 
 (ert-deftest dpt--dired-preview--file-ignored-p ()
-  "Test that `dired-preview--file-ignored-p' returns non-nil for ignored file names."
-  (let ((dired-preview-ignored-extensions-regexp
-         (custom--standard-value 'dired-preview-ignored-extensions-regexp)))
-    (dolist (ext '("mkv" "webm" "mp4" "mp3" "ogg" "m4a" "flac" "wav"
-                   "gz" "zst" "tar" "xz" "rar" "zip" "iso" "epub" "pdf"))
-      (should (dired-preview--file-ignored-p (format "example.%s" ext)))
-      (should-not (dired-preview--file-ignored-p (format "example.%s_" ext)))))
-  (let ((dired-preview-ignored-extensions-regexp "\\.DS_Store\\'"))
-    (should (dired-preview--file-ignored-p ".DS_Store"))))
+  "Test `dired-preview--file-ignored-p'."
+  (let ((dired-preview-ignored-extensions nil))
+    (should-not (dired-preview--file-ignored-p "test.txt")))
+
+  (let ((dired-preview-ignored-extensions (regexp-opt '("pdf" "epub"))))
+    (should (dired-preview--file-ignored-p "test.pdf")))
+
+  (let ((dired-preview-ignored-extensions '("pdf" "epub")))
+    (should (dired-preview--file-ignored-p "test.pdf"))))
 
 (ert-deftest dpt--dired-preview--infer-type ()
   "Test that `dired-preview--infer-type' infers the correct file type."
-  (let ((dired-preview-ignored-extensions-regexp
-         (custom--standard-value 'dired-preview-ignored-extensions-regexp)))
+  (let ((dired-preview-ignored-extensions
+         (custom--standard-value 'dired-preview-ignored-extensions)))
     (dolist (ext '("mkv" "webm" "mp4" "mp3" "ogg" "m4a" "flac" "wav"
                    "gz" "zst" "tar" "xz" "rar" "zip" "iso" "epub" "pdf"))
       (should (eq 'ignore
@@ -57,7 +57,7 @@
       (should-not (eq 'ignore
                       (car (dired-preview--infer-type
                             (format "example.%s_" ext)))))))
-  (let ((dired-preview-ignored-extensions-regexp "\\.DS_Store\\'"))
+  (let ((dired-preview-ignored-extensions "\\.DS_Store\\'"))
     (should (eq 'ignore
                 (car (dired-preview--infer-type ".DS_Store"))))))
 
