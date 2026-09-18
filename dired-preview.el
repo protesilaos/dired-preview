@@ -110,6 +110,10 @@ option."
   '("mp3" "m4a" "flac" "mp4" "ogg" "mpv" "webm" "mov" "wav")
   "Like `dired-preview-ignored-extensions' for multimedia files.")
 
+(defvar dired-preview-encryption-extensions
+  '("gpg" "age")
+  "Like `dired-preview-ignored-extensions' for encrypted files.")
+
 (defcustom dired-preview-ignored-show-ignored-placeholders t
   "When non-nil, show a placeholder preview buffer for ignored files.
 Ignored files are controlled by the `dired-preview-ignored-extensions'
@@ -407,6 +411,10 @@ See user option `dired-preview-ignored-extensions'."
 (defun dired-preview--file-media-p (file)
   "Return non-nil if FILE is `dired-preview-media-extensions'."
   (dired-preview--file-matches-kind-p file dired-preview-media-extensions))
+
+(defun dired-preview--file-encrypted-p (file)
+  "Return non-nil if FILE is encrypted."
+  (dired-preview--file-matches-kind-p file dired-preview-encryption-extensions))
 
 (defun dired-preview--file-large-p (file)
   "Return non-nil if FILE exceeds `dired-preview-max-size'."
@@ -791,16 +799,6 @@ With optional MAKE-PUBLIC, remove the indicator."
     (when-let* ((window (get-buffer-window buffer)))
       (dired-preview--set-window-parameters window t)
       (run-hooks 'dired-preview-hook))))
-
-(defvar dired-preview-encryption-file-extensions '(".gpg" ".age")
-  "List of strings specifying file extensions for encryption.")
-
-(defun dired-preview--file-encrypted-p (file)
-  "Return non-nil if FILE is encrypted.
-More specifically, test if FILE has an extension among the
-`dired-preview-encryption-file-extensions'."
-  (when-let* ((extension (file-name-extension file :include-period)))
-    (member extension dired-preview-encryption-file-extensions)))
 
 (defun dired-preview--preview-p (file)
   "Return non-nil if FILE can be previewed."
